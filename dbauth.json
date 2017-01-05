@@ -1,0 +1,7 @@
+{
+    "dbUser": "<userName>",
+    "dbPass": "<password>",
+    "host": "<hostname>",
+    "port": "<port>",
+    "database": "<database>"
+}
