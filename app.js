@@ -8,6 +8,8 @@ app.use(bodyParser.json());
 var users = [];
 var loggedInUsers = [];
 users.push({'username': 'Nithin', 'password': 'Nithin'});
+app.use('/', express.static('public'));
+
 app.post('/login', function(req, res){
 	var loggedIn = utility.validateLogin(req.body.username, req.body.password);
 	if(loggedIn){
@@ -18,9 +20,11 @@ app.post('/login', function(req, res){
 		res.send('{"message": "Error: Invalid authentication"}');
 	}
 });
+
 app.get('/usersList', function(req, res){
 	res.send(users);
 });
+
 app.post('/register', function(req, res){
 	var result = utility.validateUserExists(req.body.username);
 	if(result.length === 0){
@@ -31,7 +35,22 @@ app.post('/register', function(req, res){
 		res.send('{"message": "Error: Username already exists!"}');
 	}
 });
+
 app.get('/playVideo/:id', function(req, res){
 	res.sendfile(utility.fetchFromDB(req.params.id));
 });
+
+app.post('/addVideo', function(req, res){
+	utility.persist(req.body.video);
+	res.send("success!");
+});
+
+app.get('/findVideo/:keyword', function(req, res){
+	utility.find(req.params.keyword).then(function(items){
+		delete items._id;
+		res.send(items);
+	});
+});
+
+
 app.listen(1337);
