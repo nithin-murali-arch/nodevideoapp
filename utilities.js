@@ -9,7 +9,15 @@ var getConnectionString = function() {
 }
 
 exports.fetchFromDB = function(id) {
-    return 'C:/Users/nithin.murali/Downloads/movie.mp4';
+    return new Promise(function(resolve, reject) {
+        var object;
+        MongoClient.connect(getConnectionString()).then(function(db) {
+            var collection = db.collection('videos');
+            collection.findOne({"_id" : id}, function(error, result){
+                resolve(results);
+            });
+    });
+});
 }
 
 exports.validateUserExists = function(username) {

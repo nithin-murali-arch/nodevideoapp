@@ -4,6 +4,23 @@ var utility = require('./utilities');
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
+
+var multerUpload = Multer({
+		storage: Multer.diskStorage({
+    		dest: './public/appvideos/',
+			onFileUploadStart: function(file) {
+        		console.log('Starting file upload process.');
+        		if(file.mimetype !== 'video/mp4') {
+            		return false;
+        		}
+    		},
+			inMemory: true,
+    		filename: function (req, file, callback) { 
+				callback(null, file.fieldname + '-' + Date.now());
+			}
+		})
+}).single('video');
+
 app.use(bodyParser.json());
 var users = [];
 var loggedInUsers = [];
@@ -40,17 +57,16 @@ app.get('/playVideo/:id', function(req, res){
 	res.sendfile(utility.fetchFromDB(req.params.id));
 });
 
-app.post('/addVideo', function(req, res){
+app.post('/addVideo', multerUpload, function(req, res){
+	req.body.video.fileName = req.file.fileName;
 	utility.persist(req.body.video);
-	res.send("success!");
+	res.send('Success!');
 });
 
 app.get('/findVideo/:keyword', function(req, res){
 	utility.find(req.params.keyword).then(function(items){
-		delete items._id;
 		res.send(items);
 	});
 });
-
 
 app.listen(1337);
