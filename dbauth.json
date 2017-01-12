@@ -1,7 +1,5 @@
 {
-    "dbUser": "<userName>",
-    "dbPass": "<password>",
-    "host": "<hostname>",
-    "port": "<port>",
-    "database": "<database>"
+    "host": "localhost",
+    "port": "27017",
+    "database": "test"
 }
