@@ -46,7 +46,7 @@ app.post('/login', function(req, res){
 		loggedInUsers.add(usr , new Date());
 	}
 	else{
-		res.send('{"message": "Error: Invalid authentication"}');
+		res.send('{"errorMessage": "Error: Invalid authentication"}');
 	}
 });
 
@@ -63,7 +63,7 @@ app.post('/register', function(req, res){
 		res.send('{"message": "User created successfully!"}');
 	}
 	else{
-		res.send('{"message": "Error: Username already exists!"}');
+		res.send('{"errorMessage": "Error: Username already exists!"}');
 	}
 });
 

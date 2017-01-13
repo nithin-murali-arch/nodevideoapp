@@ -9,5 +9,9 @@
     "express-session": "^1.14.2",
     "mongodb": "^2.2.19",
     "multer": "^1.2.1"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "preinstall" : "npm -g nodemon"
   }
 }
