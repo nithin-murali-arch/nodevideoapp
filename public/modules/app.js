@@ -76,6 +76,8 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
                 if (response.data.message) {
                     $rootScope.$broadcast('appMsg', response.data.message);
                     $location.path('/');
+                    $scope.register = {};
+                    log();
                 } else if (response.data.errorMessage) {
                     $rootScope.$broadcast('appError', response.data.errorMessage);
                 }
