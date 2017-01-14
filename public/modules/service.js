@@ -1,7 +1,34 @@
+var homeDataConfig = {
+    method: 'get',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    dataType: 'json',
+    url: 'listHome'
+};
+
+app.service('videoHttpService', ['$http', '$q', function ($http, $q) {
+    this.call = function (config) {
+        var deferred = $q.defer();
+        $http(config).then(function (response) {
+            console.log(response);
+            deferred.resolve(response);
+        });
+        return deferred.promise;
+    };
+}]);
+
 app.config(['$routeProvider', function ($routeProvider) {
     $routeProvider.when('/home', {
         templateUrl: 'modules/templates/home.html',
-        controller: 'HomeController'
+        controller: 'HomeController',
+        resolve: {
+            uiData: function (videoHttpService) {
+                return videoHttpService.call(homeDataConfig).then(function (response) {
+                    return response.data;
+                });
+            }
+        }
     })
         .when('/watch', {
             templateUrl: 'modules/templates/watch.html',
@@ -19,18 +46,7 @@ app.config(['$routeProvider', function ($routeProvider) {
             templateUrl: 'modules/templates/login.html',
             controller: 'LoginController'
         })
-        .otherwise({redirectTo:'/'});
-}]);
-
-
-app.service('videoHttpService', ['$http', '$q', function($http, $q) {
-    this.call = function(config) {
-        var deferred = $q.defer();
-        $http(config).then(function(response) {
-            deferred.resolve(response);
-        });
-        return deferred.promise;
-    };
+        .otherwise({ redirectTo: '/' });
 }]);
 
 app.factory('objHolder', function () {

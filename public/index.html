@@ -3,13 +3,9 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <!--<script src="js/angular.js"></script>
-    <script src="js/angular-route.min.js"></script>-->
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-route.min.js"></script>
-    <!--<script src="js/jquery.min.js"></script>-->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
@@ -22,12 +18,12 @@
 
 <body>
     <div class="container" ng-app="VideoApp">
-        <h1>Video App</h1>
+        <h1 id="title">Video App</h1>
         <div class="errors" ng-controller="MsgController">
-            <div class="errors" ng-if="error">
+            <div class="alert alert-danger" ng-if="error">
                 {{error}}
             </div>
-            <div class="msg" ng-if="msg">
+            <div class="alert alert-success" ng-if="msg">
                 {{msg}}
             </div>
         </div>

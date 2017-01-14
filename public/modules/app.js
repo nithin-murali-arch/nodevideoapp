@@ -12,8 +12,8 @@ app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function($s
     });
 }]);
 
-app.controller('HomeController', ['$scope', function($scope) {
-    $scope.ui = {};
+app.controller('HomeController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', 'uiData', function($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location, uiData) {
+    $scope.ui = uiData;
 }]);
 
 app.controller('WatchController', ['$scope', function($scope) {
