@@ -1,0 +1,11 @@
+<div>
+    <div style="padding-top: 100px">
+        <input type="text" ng-model="video.videoName">
+        <textarea ng-model="video.videoDesc"></textarea>
+        <button class="fileUpload btn btn-danger">
+    		<span>Pick File</span> 
+            <input ngf-select ng-model="file" id="uploadBtn" type="file" class="upload" />
+		</button>
+        <button class="btn btn-primary clearB" ng-click="upload(file, video)">Upload!</button>
+    </div>
+</div>

@@ -1,39 +1,59 @@
-var app = angular.module('VideoApp', ['ngRoute']);
+var app = angular.module('VideoApp', ['ngRoute', 'ngFileUpload']);
 
-app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function($scope, $timeout, $rootScope) {
-    $rootScope.$on('appMsg', function(evt, data) {
+app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function ($scope, $timeout, $rootScope) {
+    $rootScope.$on('appMsg', function (evt, data) {
         $scope.msg = data;
-        $timeout(function() {
+        $timeout(function () {
             delete $scope.msg;
         }, 3000);
     });
-    $rootScope.$on('appError', function(evt, data) {
+    $rootScope.$on('appError', function (evt, data) {
         $scope.error = data;
     });
 }]);
 
-app.controller('HomeController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', 'uiData', function($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location, uiData) {
+app.controller('HomeController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', 'uiData', function ($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location, uiData) {
     $scope.ui = uiData;
 }]);
 
-app.controller('WatchController', ['$scope', function($scope) {
+app.controller('WatchController', ['$scope', function ($scope) {
     $scope.ui = {};
 }]);
 
-app.controller('CreateController', ['$scope', function($scope) {
+app.controller('CreateController', ['$scope', 'Upload', '$timeout', '$rootScope', '$location', function ($scope, Upload, $timeout, $rootScope, $location) {
+    $scope.upload = function (file, video) {
+        file.upload = Upload.upload({
+            url: 'addVideo',
+            data: {
+                videoFile: file,
+                video: video
+            },
+        });
+        file.upload.then(function (response) {
+            $timeout(function () {
+                file.result = response.data;
+                if(response.data === 'Success!'){
+                    $rootScope.$broadcast('appMsg', response.data);
+                    $location.path("/home");
+                }
+                else{
+                    $rootScope.$broadcast('appError', response.data);
+                }
+            });
+        });
+    }
+}]);
+
+app.controller('SearchController', ['$scope', function ($scope) {
     $scope.ui = {};
 }]);
 
-app.controller('SearchController', ['$scope', function($scope) {
-    $scope.ui = {};
-}]);
-
-app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', function($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location) {
+app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', function ($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location) {
     $scope.isLogin = true;
-    $scope.toggleLogin = function() {
+    $scope.toggleLogin = function () {
         $scope.isLogin = !$scope.isLogin;
     };
-    $scope.loginUser = function() {
+    $scope.loginUser = function () {
         var loginConfig = {
             method: 'post',
             headers: {
@@ -44,7 +64,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
             data: $scope.login
         };
         if ($scope.login.username && validationUtils.validateEmail($scope.login.username) && $scope.login.password && $scope.login.password.length > 5) {
-            videoHttpService.call(loginConfig).then(function(response) {
+            videoHttpService.call(loginConfig).then(function (response) {
                 console.log(response);
                 if (response.data.message) {
                     $rootScope.$broadcast('appMsg', response.data.message);
@@ -60,7 +80,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
         }
     };
 
-    $scope.registerUser = function() {
+    $scope.registerUser = function () {
         var registerConfig = {
             method: 'post',
             headers: {
@@ -71,7 +91,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
             data: $scope.register
         };
         if ($scope.register.email && validationUtils.validateEmail($scope.register.email) && $scope.register.password && $scope.register.password.length > 5 && $scope.register.password === $scope.register.confpassword) {
-            videoHttpService.call(registerConfig).then(function(response) {
+            videoHttpService.call(registerConfig).then(function (response) {
                 console.log(response);
                 if (response.data.message) {
                     $rootScope.$broadcast('appMsg', response.data.message);
