@@ -10,8 +10,11 @@
     "mongodb": "^2.2.19",
     "multer": "^1.2.1"
   },
+  "engines": {
+    "node": "5.10.1",
+    "npm": "3.8.3"
+  },
   "scripts": {
-    "start": "node app.js",
-    "preinstall" : "npm -g nodemon"
+    "start": "node app.js"
   }
 }
