@@ -3,9 +3,10 @@ var http = require('http');
 var utility = require('./utilities');
 var express = require('express');
 var bodyParser = require('body-parser');
-var app = express();
 var multer  = require('multer');
 var session = require('express-session');
+var fs = require("fs");
+var app = express();
 var multerUpload = multer({
 		storage: multer.diskStorage({
     		destination: './public/appvideos/',
@@ -70,8 +71,37 @@ app.post('/register', function(req, res){
 app.get('/playVideo/:id', function(req, res){
 	utility.fetchFromDB(req.params.id).then(function(video){
 		res.contentType("video/mp4");
-		utility.incrementView(video);
-		res.sendfile("./public/appvideos/" + video.fileName);
+	if (req.url !== ("/playVideo/" + req.params.id)) {
+			utility.incrementView(video);
+			res.contentType("text/html");
+			res.end('<video src="playVideo/' + req.params.id +'" controls></video>');
+  		}
+		var range = req.headers.range;
+      	if (!range) {
+       		res.sendStatus(416);
+      	}
+		var positions = range.replace(/bytes=/, "").split("-");
+      	var start = parseInt(positions[0], 10);
+      	var total = stats.size;
+      	var end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+      	var chunksize = (end - start) + 1;
+		var file = path.resolve("./public/appvideos/",video.fileName);
+		fs.stat(file, function(err, stats) {
+			var total = stats.size;
+      		var end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+      		var chunksize = (end - start) + 1;
+		    res.writeHead(206, {
+        		"Content-Range": "bytes " + start + "-" + end + "/" + total,
+        		"Accept-Ranges": "bytes",
+        		"Content-Length": chunksize,
+        		"Content-Type": "video/mp4"
+      		});
+			var stream = fs.createReadStream(file, { start: start, end: end }).on("open", function() {
+				stream.pipe(res);
+			}).on("error", function(err) {
+				res.end(err);
+			});
+		});
 	});
 });
 
@@ -105,4 +135,4 @@ app.get('/listHome', function(req, res){
 	});
 });
 
-app.listen(process.env.PORT || 5000);
+app.listen(process.env.PORT || 1337);
