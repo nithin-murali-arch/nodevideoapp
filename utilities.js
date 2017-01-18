@@ -6,7 +6,7 @@ var _DEFAULTS = {
 };
 var getConnectionString = function() {
     var secObj = JSON.parse(fs.readFileSync('dbauth.json', 'utf8'));
-    return "mongodb://" + secObj.host + ":" + secObj.port + "/" + secObj.database;
+    return "mongodb://" + secObj.user + ":" + secObj.pass + "@" + secObj.host + ":" + secObj.port + "/" + secObj.database;
 }
 
 exports.fetchFromDB = function(id) {
