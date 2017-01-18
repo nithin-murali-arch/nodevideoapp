@@ -71,7 +71,7 @@ app.post('/register', function(req, res){
 app.get('/playVideo/:id', function(req, res){
 	utility.fetchFromDB(req.params.id).then(function(video){
 		res.contentType("video/mp4");
-	if (req.url !== ("/playVideo/" + req.params.id)) {
+	if (req.url === ("/playVideo/" + req.params.id)) {
 			utility.incrementView(video);
 			res.contentType("text/html");
 			res.end('<video src="playVideo/' + req.params.id +'" controls></video>');
