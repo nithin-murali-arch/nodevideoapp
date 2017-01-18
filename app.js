@@ -105,4 +105,4 @@ app.get('/listHome', function(req, res){
 	});
 });
 
-app.listen(1337);
+app.listen(process.env.PORT || 5000);
