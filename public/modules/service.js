@@ -16,12 +16,14 @@ var videoMetadataConfig = {
     url: 'videoMetadata'
 };
 
-app.service('videoHttpService', ['$http', '$q', function ($http, $q) {
+app.service('videoHttpService', ['$http', '$q', '$rootScope', function ($http, $q, $rootScope) {
     this.call = function (config) {
         var deferred = $q.defer();
+         $rootScope.$broadcast('showLoadingOverlay');
         $http(config).then(function (response) {
             console.log(response);
             deferred.resolve(response);
+            $rootScope.$broadcast('hideLoadingOverlay');
         });
         return deferred.promise;
     };

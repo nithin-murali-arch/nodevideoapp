@@ -14,7 +14,7 @@ app.directive('pressEnter', function () {
 .directive('tileRenderer', ['$location', function($location){
     return {
         restrict: 'E',
-        template: 'templates/tilerender-template.html',
+        templateUrl: 'modules/templates/tilerender-template.html',
         scope: {
             data: '='
         },
