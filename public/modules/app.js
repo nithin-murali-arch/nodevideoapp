@@ -10,14 +10,33 @@ app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function ($
     $rootScope.$on('appError', function (evt, data) {
         $scope.error = data;
     });
+    $rootScope.$on('showLoadingOverlay', function(evt, data){
+        $scope.showLoad = true;
+    });
+    $rootScope.$on('hideLoadingOverlay', function(evt, data){
+        $scope.showLoad = false;
+    });
+}]);
+
+app.controller('LoadingController', ['$scope', '$rootScope', function ($scope, $rootScope) {
+    $rootScope.$on('showLoadingOverlay', function(evt, data){
+        $scope.showLoad = true;
+    });
+    $rootScope.$on('hideLoadingOverlay', function(evt, data){
+        $scope.showLoad = false;
+    });
 }]);
 
 app.controller('HomeController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', 'uiData', function ($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location, uiData) {
     $scope.ui = uiData;
 }]);
 
-app.controller('WatchController', ['$scope', function ($scope) {
-    $scope.ui = {};
+app.controller('WatchController', ['$scope', '$routeParams', function ($scope, $routeParams) {
+    $scope.videoUrl = '/playVideo/' + $routeParams.id;
+    videoMetadataConfig.url = videoMetadataConfig.url + '/' + params.id
+    videoHttpService.call(videoMetadataConfig).then(function (response) {
+        $scope.video = response.data;
+    });
 }]);
 
 app.controller('CreateController', ['$scope', 'Upload', '$timeout', '$rootScope', '$location', function ($scope, Upload, $timeout, $rootScope, $location) {
@@ -32,11 +51,11 @@ app.controller('CreateController', ['$scope', 'Upload', '$timeout', '$rootScope'
         file.upload.then(function (response) {
             $timeout(function () {
                 file.result = response.data;
-                if(response.data === 'Success!'){
+                if (response.data === 'Success!') {
                     $rootScope.$broadcast('appMsg', response.data);
                     $location.path("/home");
                 }
-                else{
+                else {
                     $rootScope.$broadcast('appError', response.data);
                 }
             });
@@ -63,7 +82,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
             url: 'login',
             data: $scope.login
         };
-        if ($scope.login.username && validationUtils.validateEmail($scope.login.username) && $scope.login.password && $scope.login.password.length > 5) {
+        if ($scope.login.username && validationUtils.validateUsername($scope.login.username) && $scope.login.password && $scope.login.password.length > 5) {
             videoHttpService.call(loginConfig).then(function (response) {
                 console.log(response);
                 if (response.data.message) {

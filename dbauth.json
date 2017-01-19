@@ -1,7 +1,5 @@
 {
-    "host": "ds151018.mlab.com",
-    "port": "51018",
-    "database": "sapartment",
-    "user": "ruser",
-    "pass": "ruser"
+    "host": "localhost",
+    "port": "27017",
+    "database": "test"
 }

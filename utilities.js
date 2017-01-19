@@ -2,11 +2,23 @@ var fs = require('fs');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
 var _DEFAULTS = {
-
+    connTimeout: 1000 //millis
 };
+
+var closeConnection = function(db){
+    setTimeout(function(){
+        db.close();
+    }, _DEFAULTS.connTimeout);
+};
+
 var getConnectionString = function() {
     var secObj = JSON.parse(fs.readFileSync('dbauth.json', 'utf8'));
-    return "mongodb://" + secObj.user + ":" + secObj.pass + "@" + secObj.host + ":" + secObj.port + "/" + secObj.database;
+    var userPass;
+    if(secObj.user && secObj.pass){
+        userPass = secObj.user + ':' + secObj.pass + '@';
+    }
+    var mongoStr = "mongodb://" + (userPass ? userPass : '')  + secObj.host + ":" + secObj.port + "/" + secObj.database;
+    return mongoStr;
 }
 
 exports.fetchFromDB = function(id) {
@@ -14,6 +26,7 @@ exports.fetchFromDB = function(id) {
         MongoClient.connect(getConnectionString()).then(function(db) {
             var collection = db.collection('videos');
             collection.findOne({"_id" : new ObjectId(id)}, function(error, result){
+                closeConnection(db);
                 resolve(result);
             });
     });
@@ -32,6 +45,7 @@ exports.fetchUsers = function(){
         MongoClient.connect(getConnectionString()).then(function(db) {
             var collection = db.collection('users');
             collection.find().toArray(function(err, results) {
+                closeConnection(db);
                 resolve(results);
             });
         });
@@ -98,6 +112,7 @@ exports.find = function(keyword) {
                 }
             }).toArray(function(err, results) {
                 console.log(results); // output all records
+                closeConnection(db);
                 resolve(results);
             });
         });
@@ -110,7 +125,7 @@ exports.listHot = function(keyword) {
         MongoClient.connect(getConnectionString()).then(function(db) {
             var collection = db.collection('videos');
             collection.find().sort({ views: -1 }).limit(5).toArray(function(err, results) {
-                console.log(results); // output all records
+                closeConnection(db);
                 resolve(results);
             });
         });
@@ -123,7 +138,7 @@ exports.listNew = function(keyword) {
         MongoClient.connect(getConnectionString()).then(function(db) {
             var collection = db.collection('videos');
             collection.find().sort({ date: -1 }).limit(5).toArray(function(err, results) {
-                console.log(results); // output all records
+                closeConnection(db);
                 resolve(results);
             });
         });
