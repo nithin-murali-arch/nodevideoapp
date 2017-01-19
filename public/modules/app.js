@@ -31,7 +31,7 @@ app.controller('HomeController', ['$scope', 'objHolder', 'validationUtils', 'vid
     $scope.ui = uiData;
 }]);
 
-app.controller('WatchController', ['$scope', '$routeParams', function ($scope, $routeParams) {
+app.controller('WatchController', ['$scope', '$routeParams', 'videoHttpService ', function ($scope, $routeParams, videoHttpService) {
     $scope.videoUrl = '/playVideo/' + $routeParams.id;
     videoMetadataConfig.url = videoMetadataConfig.url + '/' + $routeParams.id;
     videoHttpService.call(videoMetadataConfig).then(function (response) {
