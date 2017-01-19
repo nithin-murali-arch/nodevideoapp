@@ -1,4 +1,10 @@
-var app = angular.module('VideoApp', ['ngRoute', 'ngFileUpload']);
+var app = angular.module('VideoApp', ['ngRoute', 'ngFileUpload','ngAria','ngAnimate','ngMaterial']);
+
+app.config(['$mdThemingProvider',function($mdThemingProvider){
+    $mdThemingProvider.theme('default')
+    .primaryPalette('indigo')
+    .accentPalette('orange');
+}]);
 
 app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function ($scope, $timeout, $rootScope) {
     $rootScope.$on('appMsg', function (evt, data) {
