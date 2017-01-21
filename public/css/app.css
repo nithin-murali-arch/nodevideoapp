@@ -130,3 +130,13 @@ position: relative;
 .display-flex{
 	display: flex;
 }
+
+.tile{
+	width:250px;
+	height: 270px;
+}
+
+.tile .title{
+	font-weight: bold;
+	padding: 0px 0px 10px;
+}

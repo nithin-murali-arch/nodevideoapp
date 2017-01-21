@@ -1,5 +1,9 @@
-<div ng-click="viewVideo(obj._id)" class="tile" ng-repeat="obj in data">
-    <img class="vidThumbnail" ng-src="obj.thumbnail">
-    <p>{{obj.videoName}}</p>
-    <p>{{obj.videoDesc}}</p>
+<div layout="row">
+    <md-card ng-click="viewVideo(obj._id)" class="tile" ng-repeat="obj in data" layout="column">
+        <img ng-src="obj.thumbnail" class="md-card-image" flex="70">
+        <md-card-content layout="column"> 
+            <span class="title">{{obj.video.videoName}}</span>
+            <p>{{obj.video.videoDesc}}</p>
+        </md-card-content>
+    </md-card>
 </div>

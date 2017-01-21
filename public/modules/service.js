@@ -16,12 +16,29 @@ var videoMetadataConfig = {
     url: 'videoMetadata'
 };
 
+app.factory("httpInterceptor", ["$log", function ($log) {
+    var count = 0;
+    return {
+        request: function (requestConfig) {
+            $log.debug(requestConfig);
+            return requestConfig;
+        },
+        response: function (responseConfig) {
+            $log.debug(responseConfig);
+            return responseConfig;
+        },
+        responseError: function (responseErrorConfig) {
+            $log.debug(responseErrorConfig);
+            return $q.reject(responseErrorConfig);
+        }
+    };
+}]);
+
 app.service('videoHttpService', ['$http', '$q', '$rootScope', function ($http, $q, $rootScope) {
     this.call = function (config) {
         var deferred = $q.defer();
-         $rootScope.$broadcast('showLoadingOverlay');
+        $rootScope.$broadcast('showLoadingOverlay');
         $http(config).then(function (response) {
-            console.log(response);
             deferred.resolve(response);
             $rootScope.$broadcast('hideLoadingOverlay');
         });
@@ -29,8 +46,8 @@ app.service('videoHttpService', ['$http', '$q', '$rootScope', function ($http, $
     };
 }]);
 
-app.config(function($sceProvider) {
-      $sceProvider.enabled(false);
+app.config(function ($sceProvider) {
+    $sceProvider.enabled(false);
 });
 
 app.config(['$routeProvider', function ($routeProvider) {
@@ -39,7 +56,6 @@ app.config(['$routeProvider', function ($routeProvider) {
         controller: 'HomeController',
         resolve: {
             uiData: function (videoHttpService) {
-                homeDataConfig
                 return videoHttpService.call(homeDataConfig).then(function (response) {
                     return response.data;
                 });
@@ -71,8 +87,8 @@ app.service('validationUtils', function () {
         //return email.length > 5;
         return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
     }
-    
-    this.validateUsername = function(username){
+
+    this.validateUsername = function (username) {
         return username.length > 5;
     }
 });

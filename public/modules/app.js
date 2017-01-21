@@ -1,9 +1,10 @@
 var app = angular.module('VideoApp', ['ngRoute', 'ngFileUpload','ngAria','ngAnimate','ngMaterial']);
 
-app.config(['$mdThemingProvider',function($mdThemingProvider){
+app.config(['$mdThemingProvider','$httpProvider',function($mdThemingProvider,$httpProvider){
     $mdThemingProvider.theme('default')
     .primaryPalette('indigo')
     .accentPalette('orange');
+    $httpProvider.interceptors.push("httpInterceptor");
 }]);
 
 app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function ($scope, $timeout, $rootScope) {
