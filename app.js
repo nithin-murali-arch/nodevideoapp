@@ -131,4 +131,8 @@ app.get('/listHome', function (req, res) {
 	});
 });
 
+app.get('/getFiles', function(req, res){
+	res.send(JSON.stringify(utility.getFolderContents));
+});
+
 app.listen(process.env.PORT || 1337);

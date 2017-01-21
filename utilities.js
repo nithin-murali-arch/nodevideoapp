@@ -174,3 +174,13 @@ exports.incrementView = function (video) {
         });
     });
 }
+
+exports.getFolderContents = function () {
+    const testFolder = './public/appVideos/thumbnails';
+    var files = [];
+    fs.readdir(testFolder, (err, files) => {
+        files.forEach(file => {
+            files.push(file);
+        });
+    })
+}
