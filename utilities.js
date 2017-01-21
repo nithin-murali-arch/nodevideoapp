@@ -177,10 +177,7 @@ exports.incrementView = function (video) {
 
 exports.getFolderContents = function () {
     const testFolder = './public/appVideos/thumbnails';
-    var files = [];
-    fs.readdir(testFolder, (err, files) => {
-        files.forEach(file => {
-            files.push(file);
-        });
+    return fs.readdir(testFolder, (err, files) => {
+        return files;
     })
 }
