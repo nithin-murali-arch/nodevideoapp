@@ -1,5 +1,6 @@
 <div layout="row">
     <md-card ng-click="viewVideo(obj._id)" class="tile" ng-repeat="obj in data" layout="column">
+        {{obj.thumbnail}}
         <img ng-src="{{obj.thumbnail}}" class="md-card-image" flex="70">
         <md-card-content layout="column"> 
             <span class="title">{{obj.video.videoName}}</span>

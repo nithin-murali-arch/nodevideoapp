@@ -23,7 +23,7 @@ var multerUpload = multer({
 		}
 	})
 }).single('videoFile');
-
+utility.refreshDBOnStart();
 app.use(bodyParser.json());
 app.use(session({
 	resave: false,
@@ -113,15 +113,6 @@ app.get('/findVideo/:keyword', function (req, res) {
 	utility.find(req.params.keyword).then(function (items) {
 		res.send(items);
 	});
-});
-
-app.get('/cleanAllFiles', function(req, res){
-	utility.rmDir('./public/appVideos/');
-	utility.rmDir('./public/thumbnails/');
-	res.send('Done!');
-	//TODO
-	//db.videos.drop();
-	//db.createCollection('videos');
 });
 
 app.get('/listHome', function (req, res) {

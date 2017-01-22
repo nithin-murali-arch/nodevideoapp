@@ -213,3 +213,10 @@ exports.rmDir = function (dirPath) {
         }
     }
 };
+
+exports.refreshDBOnStart = function(){
+    MongoClient.connect(getConnectionString(), function (err, db) {
+        db.collection('videos').drop();
+        db.createCollection('videos');
+    });
+}
