@@ -103,6 +103,7 @@ exports.registerUser = function (user) {
 exports.persist = function (video) {
     console.log(getConnectionString());
     prepareThumbnail(_DEFAULTS.videos, video.fileName);
+    video.thumbnail = _DEFAULTS.thumbnails + '/' + video.filename;
     MongoClient.connect(getConnectionString(), function (err, db) {
         if (err) {
             console.log(err);
