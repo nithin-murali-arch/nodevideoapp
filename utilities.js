@@ -5,7 +5,8 @@ var ObjectId = require('mongodb').ObjectID;
 var _DEFAULTS = {
     connTimeout: 1000, //millis
     videos: 'public/appvideos/',
-    thumbnails: './public/thumbnails'
+    thumbnails: './public/thumbnails',
+    tpath: 'public/thumbnails'
 };
 
 var closeConnection = function (db) {
@@ -103,7 +104,7 @@ exports.registerUser = function (user) {
 exports.persist = function (video) {
     console.log(getConnectionString());
     prepareThumbnail(_DEFAULTS.videos, video.fileName);
-    video.thumbnail = _DEFAULTS.thumbnails + '/' + video.fileName;
+    video.thumbnail = _DEFAULTS.tpath + '/' + video.fileName;
     MongoClient.connect(getConnectionString(), function (err, db) {
         if (err) {
             console.log(err);
