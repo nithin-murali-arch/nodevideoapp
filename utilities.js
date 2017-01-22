@@ -214,9 +214,15 @@ exports.rmDir = function (dirPath) {
     }
 };
 
-exports.refreshDBOnStart = function(){
+exports.refreshDBOnStart = function () {
     MongoClient.connect(getConnectionString(), function (err, db) {
+        if (err) {
+            console.log(err);
+            return;
+        }
         db.collection('videos').drop();
         db.createCollection('videos');
+        db.close();
+        console.log("Refreshed DB")
     });
 }

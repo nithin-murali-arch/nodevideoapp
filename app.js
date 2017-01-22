@@ -23,6 +23,7 @@ var multerUpload = multer({
 		}
 	})
 }).single('videoFile');
+//TODO remove once we use S3
 utility.refreshDBOnStart();
 app.use(bodyParser.json());
 app.use(session({
