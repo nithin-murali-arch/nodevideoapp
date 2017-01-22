@@ -116,6 +116,10 @@ app.get('/findVideo/:keyword', function (req, res) {
 	});
 });
 
+app.get('/refresh', function (req, res) {
+	utility.refreshDBOnStart();
+});
+
 app.get('/listHome', function (req, res) {
 	var resp = {};
 	utility.listHot(req.params.keyword).then(function (items) {

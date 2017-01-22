@@ -16,7 +16,7 @@ var videoMetadataConfig = {
     url: 'videoMetadata'
 };
 
-app.factory("httpInterceptor", ["$log", function ($log) {
+app.factory("httpInterceptor", ["$log", '$q', function ($log, $q) {
     var count = 0;
     return {
         request: function (requestConfig) {
