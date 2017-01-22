@@ -98,7 +98,7 @@ app.get('/playVideo/:id', function (req, res) {
 
 app.get('/videoMetadata/:id', function(req, res){
 	utility.fetchFromDB(req.params.id).then(function(video){
-		res.end(video);
+		res.end(JSON.stringify(video));
 	});
 });
 
