@@ -3,7 +3,9 @@ var MongoClient = require('mongodb').MongoClient;
 var ffmpeg = require('fluent-ffmpeg');
 var ObjectId = require('mongodb').ObjectID;
 var _DEFAULTS = {
-    connTimeout: 1000 //millis
+    connTimeout: 1000, //millis
+    videos: 'public/appvideos/',
+    thumbnails: './public/thumbnails'
 };
 
 var closeConnection = function (db) {
@@ -22,13 +24,19 @@ var getConnectionString = function () {
     return mongoStr;
 }
 
-var prepareThumbnail = function (videoPath) {
-    var proc = new ffmpeg('videoPath').takeScreenshots({
+var prepareThumbnail = function (videoPath, fileName) {
+    var proc = new ffmpeg(videoPath + fileName).takeScreenshots({
         count: 1,
-        timemarks: ['600'] // number of seconds
-    }, './public/appVideos/thumbnails', function (err) {
-        console.log('screenshots were saved')
+        filename: fileName + '.jpg',
+        size: '320x240'
+    }, _DEFAULTS.thumbnails, function (err) {
+        console.log('Thumbnail saved.');
+        if(err){
+            console.log(err);
+        }
     });
+    proc.setFfmpegPath('ffmpeg/ffmpeg');
+    proc.setFfprobePath('ffmpeg/ffprobe');
 }
 
 exports.fetchFromDB = function (id) {
@@ -94,7 +102,7 @@ exports.registerUser = function (user) {
 
 exports.persist = function (video) {
     console.log(getConnectionString());
-    prepareThumbnail('public/appvideos/' + video.fileName);
+    prepareThumbnail(_DEFAULTS.videos, video.fileName);
     MongoClient.connect(getConnectionString(), function (err, db) {
         if (err) {
             console.log(err);
@@ -176,7 +184,7 @@ exports.incrementView = function (video) {
 }
 
 exports.getFolderContents = function () {
-    const testFolder = './public/appVideos/thumbnails';
+    const testFolder = _DEFAULTS.thumbnails;
     return fs.readdir(testFolder, (err, files) => {
         return files;
     })
