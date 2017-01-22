@@ -1,2 +1,4 @@
 node_modules/*
 public/appVideos/*
+public/thumbnails/*
+ffmpeg/*

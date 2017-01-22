@@ -119,6 +119,9 @@ app.get('/cleanAllFiles', function(req, res){
 	utility.rmDir('./public/appVideos/');
 	utility.rmDir('./public/thumbnails/');
 	res.send('Done!');
+	//TODO
+	//db.videos.drop();
+	//db.createCollection('videos');
 });
 
 app.get('/listHome', function (req, res) {
