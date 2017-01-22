@@ -6,7 +6,7 @@ var _DEFAULTS = {
     connTimeout: 1000, //millis
     videos: 'public/appvideos/',
     thumbnails: './public/thumbnails',
-    tpath: 'public/thumbnails'
+    tpath: 'thumbnails'
 };
 
 var closeConnection = function (db) {
@@ -32,7 +32,7 @@ var prepareThumbnail = function (videoPath, fileName) {
         size: '320x240'
     }, _DEFAULTS.thumbnails, function (err) {
         console.log('Thumbnail saved.');
-        if(err){
+        if (err) {
             console.log(err);
         }
     });
@@ -104,7 +104,7 @@ exports.registerUser = function (user) {
 exports.persist = function (video) {
     console.log(getConnectionString());
     prepareThumbnail(_DEFAULTS.videos, video.fileName);
-    video.thumbnail = _DEFAULTS.tpath + '/' + video.fileName;
+    video.thumbnail = _DEFAULTS.tpath + '/' + video.fileName + '.jpg';
     MongoClient.connect(getConnectionString(), function (err, db) {
         if (err) {
             console.log(err);
@@ -191,3 +191,25 @@ exports.getFolderContents = function () {
         return files;
     })
 }
+
+exports.rmDir = function (dirPath) {
+    var files;
+    try {
+        files = fs.readdirSync(dirPath);
+    }
+    catch (e) {
+        console.log(e);
+        return;
+    }
+    if (files.length > 0) {
+        for (var i = 0; i < files.length; i++) {
+            var filePath = dirPath + '/' + files[i];
+            if (fs.statSync(filePath).isFile()) {
+                fs.unlinkSync(filePath);
+            }
+            else {
+                rmDir(filePath);
+            }
+        }
+    }
+};

@@ -115,6 +115,12 @@ app.get('/findVideo/:keyword', function (req, res) {
 	});
 });
 
+app.get('/cleanAllFiles', function(req, res){
+	utility.rmDir('./public/appVideos/');
+	utility.rmDir('./public/thumbnails/');
+	res.send('Done!');
+});
+
 app.get('/listHome', function (req, res) {
 	var resp = {};
 	utility.listHot(req.params.keyword).then(function (items) {
