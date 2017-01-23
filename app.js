@@ -22,6 +22,7 @@ var multerUpload = multer({
 			}
 			else if(!req.session.user){
 				multerEvent.emit('multerEvent', 'Error: Please login before you do that!');
+				return false;
 			}
 			else{
 				multerEvent.emit('multerEvent', 'Success!');
@@ -112,19 +113,14 @@ app.get('/videoMetadata/:id', function(req, res){
 	});
 });
 
-app.post('/addVideo', multerUpload, function (req, res) {
-	var message;
-	multerEvent.on('multerEvent', function(evt, data){
-		console.log('Detected multer event');
-		res.send(JSON.stringify(data));
-		if(data.indexOf("Error") !== -1){
+app.post('/addVideo', function (req, res) {
+
 			console.log('not an error');
 			req.body.fileName = req.file.filename;
 			req.body.date = new Date();
 			utility.persist(req.body);
 			console.log(JSON.stringify(req.body));	
-		}
-	});
+	res.send("Success!");
 	
 });
 
