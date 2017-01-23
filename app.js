@@ -8,7 +8,9 @@ var session = require('express-session');
 var path = require("path");
 var fs = require("fs");
 var app = express();
-var event = require('events');
+var EventEmitter = require('events');
+class MulterEvent extends EventEmitter {}
+var multerEvent = new MulterEvent();
 var multerUpload = multer({
 	storage: multer.diskStorage({
 		destination: './public/appvideos/',
@@ -112,7 +114,7 @@ app.get('/videoMetadata/:id', function(req, res){
 
 app.post('/addVideo', multerUpload, function (req, res) {
 	var message;
-	event.on('multerEvent', function(evt, data){
+	multerEvent.on('multerEvent', function(evt, data){
 		res.send(JSON.stringify(data));
 	});
 	req.body.fileName = req.file.filename;
