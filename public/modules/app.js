@@ -19,6 +19,9 @@ app.controller('ToolbarController', ['$scope', '$timeout', '$rootScope', 'objHol
     $scope.isUserLoggedIn = function(){
         return angular.isDefined(objHolder.getParam('user'));
     };
+    $scope.redirectToCreate = function(){
+        $location.path('/create');
+    };
     $scope.$on("$routeChangeError", function(evt,current,previous,rejection){
         $rootScope.$broadcast('appError', rejection);
     });
