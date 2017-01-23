@@ -36,6 +36,13 @@ app.controller('MsgController', ['$scope', '$timeout', '$rootScope', 'objHolder'
     $scope.isUserLoggedIn = function(){
         return angular.isDefined(objHolder.getParam('user'));
     };
+    $scope.$on("$routeChangeError", function(evt,current,previous,rejection){
+      if(rejection == "not_logged_in"){
+        //DO SOMETHING
+      } else {
+        //OR DO SOMETHING ELSE
+      }
+    });
 }]);
 
 app.controller('LoadingController', ['$scope', '$rootScope', function ($scope, $rootScope) {
@@ -87,11 +94,15 @@ app.controller('SearchController', ['$scope', function ($scope) {
     $scope.ui = {};
 }]);
 
-app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', function ($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location) {
+app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', '$mdDialog', function ($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location, $mdDialog) {
     $scope.isLogin = true;
     $scope.toggleLogin = function () {
         $scope.isLogin = !$scope.isLogin;
     };
+    $scope.hide = function () {
+        $mdDialog.hide();
+    };
+    
     $scope.loginUser = function () {
         var loginConfig = {
             method: 'post',
@@ -102,22 +113,30 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
             url: 'login',
             data: $scope.login
         };
+        $scope.$on('appError', function(evt, data){
+            $scope.errorMessage = data;
+            $timeout(function(){
+                delete $scope.errorMessage
+            }, 3000);
+        });
         if ($scope.login.username && validationUtils.validateUsername($scope.login.username) && $scope.login.password && $scope.login.password.length > 5) {
             videoHttpService.call(loginConfig).then(function (response) {
                 console.log(response);
                 if (response.data.message) {
                     $rootScope.$broadcast('appMsg', response.data.message);
-                    objHolder.setParam('user', $scope.login.user)
+                    objHolder.setParam('user', $scope.login.user);
                     $location.path('/home');
+                    $mdDialog.hide();
                 } else {
-                    $rootScope.$broadcast('appError', response.data.errorMessage);
+                    $rootScope.$broadcast('modalError', response.data.errorMessage);
                 }
             });
 
         } else {
-            $rootScope.$broadcast('appError', 'LoginFormIssue');
+            $scope.$emit('appError', 'LoginFormIssue');
         }
     };
+}]);
 
     $scope.registerUser = function () {
         var registerConfig = {
