@@ -113,7 +113,7 @@ app.get('/videoMetadata/:id', function(req, res){
 	});
 });
 
-app.post('/addVideo', function (req, res) {
+app.post('/addVideo', multerUpload, function (req, res) {
 
 			console.log('not an error');
 			req.body.fileName = req.file.filename;
