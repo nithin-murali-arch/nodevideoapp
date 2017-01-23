@@ -38,12 +38,22 @@ app.controller('HomeController', ['$scope', 'objHolder', 'validationUtils', 'vid
     $scope.ui = uiData;
 }]);
 
-app.controller('WatchController', ['$scope', '$routeParams', 'videoHttpService', function ($scope, $routeParams, videoHttpService) {
+app.controller('WatchController', ['$scope', '$routeParams', 'videoHttpService', '$mdDialog', '$log', function ($scope, $routeParams, videoHttpService, $mdDialog, $log) {
     $scope.videoUrl = '/playVideo/' + $routeParams.id;
     videoMetadataConfig.url = videoMetadataConfig.url + '/' + $routeParams.id;
     videoHttpService.call(videoMetadataConfig).then(function (response) {
         $scope.video = response.data;
     });
+    $scope.showLoginModal = function(){
+        $mdDialog.show({
+          controller: LoginController,
+          templateUrl: 'modules/templates/login.html',
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose:true,
+          fullscreen: $scope.customFullscreen
+        });
+    };
 }]);
 
 app.controller('CreateController', ['$scope', 'Upload', '$timeout', '$rootScope', '$location', function ($scope, Upload, $timeout, $rootScope, $location) {
