@@ -17,14 +17,14 @@ var multerUpload = multer({
 		onFileUploadStart: function (file) {
 			console.log('Starting file upload process.');
 			if (file.mimetype !== 'video/mp4') {
-				event.emit('multerEvent', 'Error: Mime type to be video/mp4 only!');
+				multerEvent.emit('multerEvent', 'Error: Mime type to be video/mp4 only!');
 				return false;
 			}
 			else if(!req.session.user){
-				event.emit('multerEvent', 'Error: Please login before you do that!');
+				multerEvent.emit('multerEvent', 'Error: Please login before you do that!');
 			}
 			else{
-				event.emit('multerEvent', 'Success!');
+				multerEvent.emit('multerEvent', 'Success!');
 			}
 		},
 		inMemory: true,
@@ -116,11 +116,14 @@ app.post('/addVideo', multerUpload, function (req, res) {
 	var message;
 	multerEvent.on('multerEvent', function(evt, data){
 		res.send(JSON.stringify(data));
+		if(data.indexOf("Error") === -1){
+			req.body.fileName = req.file.filename;
+			req.body.date = new Date();
+			utility.persist(req.body);
+			console.log(JSON.stringify(req.body));	
+		}
 	});
-	req.body.fileName = req.file.filename;
-	req.body.date = new Date();
-	utility.persist(req.body);
-	console.log(JSON.stringify(req.body));
+	
 });
 
 app.get('/findVideo/:keyword', function (req, res) {
