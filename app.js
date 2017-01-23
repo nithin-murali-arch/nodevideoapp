@@ -115,8 +115,10 @@ app.get('/videoMetadata/:id', function(req, res){
 app.post('/addVideo', multerUpload, function (req, res) {
 	var message;
 	multerEvent.on('multerEvent', function(evt, data){
+		console.log('Detected multer event');
 		res.send(JSON.stringify(data));
 		if(data.indexOf("Error") !== -1){
+			console.log('not an error');
 			req.body.fileName = req.file.filename;
 			req.body.date = new Date();
 			utility.persist(req.body);
