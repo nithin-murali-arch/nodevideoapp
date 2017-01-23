@@ -7,7 +7,7 @@ app.config(['$mdThemingProvider','$httpProvider',function($mdThemingProvider,$ht
     $httpProvider.interceptors.push("httpInterceptor");
 }]);
 
-app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function ($scope, $timeout, $rootScope) {
+app.controller('MsgController', ['$scope', '$timeout', '$rootScope', 'objHolder', function ($scope, $timeout, $rootScope, objHolder) {
     $rootScope.$on('appMsg', function (evt, data) {
         $scope.msg = data;
         $timeout(function () {
@@ -32,6 +32,9 @@ app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function ($
           clickOutsideToClose:true,
           fullscreen: $scope.customFullscreen
         });
+    };
+    $scope.isUserLoggedIn = function(){
+        return angular.isDefined(objHolder.getParam('user'));
     };
 }]);
 
