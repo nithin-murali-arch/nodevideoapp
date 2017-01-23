@@ -29,7 +29,8 @@ var prepareThumbnail = function (videoPath, fileName) {
     var proc = new ffmpeg(videoPath + fileName).takeScreenshots({
         count: 1,
         filename: fileName + '.jpg',
-        size: '320x240'
+        size: '320x240',
+        timeout: 30
     }, _DEFAULTS.thumbnails, function (err) {
         console.log('Thumbnail saved.');
         if (err) {
