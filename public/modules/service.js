@@ -68,7 +68,20 @@ app.config(['$routeProvider', function ($routeProvider) {
         })
         .when('/create', {
             templateUrl: 'modules/templates/create.html',
-            controller: 'CreateController'
+            controller: 'CreateController',
+            resolve: {
+                isUserLoggedIn: function(objHolder, $q){
+                    var defer = $q.defer();
+                    var pageAccessible = angular.isDefined(objHolder.getParam('user'));
+                    if(pageAccessible){
+                        defer.resolve();
+                    }
+                    else{
+                        defer.reject('Please log in before doing this activity.');
+                    }
+                    return defer.promise;
+                }
+            }
         })
         .when('/search', {
             templateUrl: 'modules/templates/search.html',
