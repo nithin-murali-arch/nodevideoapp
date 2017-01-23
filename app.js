@@ -116,7 +116,7 @@ app.post('/addVideo', multerUpload, function (req, res) {
 	var message;
 	multerEvent.on('multerEvent', function(evt, data){
 		res.send(JSON.stringify(data));
-		if(data.indexOf("Error") === -1){
+		if(data.indexOf("Error") !== -1){
 			req.body.fileName = req.file.filename;
 			req.body.date = new Date();
 			utility.persist(req.body);
