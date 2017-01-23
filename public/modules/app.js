@@ -136,8 +136,6 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
             $scope.$emit('appError', 'LoginFormIssue');
         }
     };
-}]);
-
     $scope.registerUser = function () {
         var registerConfig = {
             method: 'post',
