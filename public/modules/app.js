@@ -7,23 +7,8 @@ app.config(['$mdThemingProvider','$httpProvider',function($mdThemingProvider,$ht
     $httpProvider.interceptors.push("httpInterceptor");
 }]);
 
-app.controller('MsgController', ['$scope', '$timeout', '$rootScope', 'objHolder', function ($scope, $timeout, $rootScope, objHolder) {
-    $rootScope.$on('appMsg', function (evt, data) {
-        $scope.msg = data;
-        $timeout(function () {
-            delete $scope.msg;
-        }, 3000);
-    });
-    $rootScope.$on('appError', function (evt, data) {
-        $scope.error = data;
-    });
-    $rootScope.$on('showLoadingOverlay', function(evt, data){
-        $scope.showLoad = true;
-    });
-    $rootScope.$on('hideLoadingOverlay', function(evt, data){
-        $scope.showLoad = false;
-    });
-    $scope.showLoginModal = function(){
+app.controller('ToolbarController', ['$scope', '$timeout', '$rootScope', 'objHolder', function ($scope, $timeout, $rootScope, objHolder) {
+        $scope.showLoginModal = function(){
         $mdDialog.show({
           controller: LoginController,
           templateUrl: 'modules/templates/login.html',
@@ -37,11 +22,19 @@ app.controller('MsgController', ['$scope', '$timeout', '$rootScope', 'objHolder'
         return angular.isDefined(objHolder.getParam('user'));
     };
     $scope.$on("$routeChangeError", function(evt,current,previous,rejection){
-      if(rejection == "not_logged_in"){
-        //DO SOMETHING
-      } else {
-        //OR DO SOMETHING ELSE
-      }
+        $rootScope.$broadcast('appError', rejection);
+    });
+}]);
+
+app.controller('MsgController', ['$scope', '$timeout', '$rootScope', 'objHolder', function ($scope, $timeout, $rootScope, objHolder) {
+    $rootScope.$on('appMsg', function (evt, data) {
+        $scope.msg = data;
+        $timeout(function () {
+            delete $scope.msg;
+        }, 3000);
+    });
+    $rootScope.$on('appError', function (evt, data) {
+        $scope.error = data;
     });
 }]);
 
