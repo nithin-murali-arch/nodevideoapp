@@ -33,6 +33,9 @@ app.controller('MsgController', ['$scope', '$timeout', '$rootScope', 'objHolder'
     });
     $rootScope.$on('appError', function (evt, data) {
         $scope.error = data;
+        $timeout(function () {
+            delete $scope.error;
+        }, 3000);
     });
 }]);
 
@@ -104,7 +107,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
             url: 'login',
             data: $scope.login
         };
-        $scope.$on('appError', function(evt, data){
+        $scope.$on('modalError', function(evt, data){
             $scope.errorMessage = data;
             $timeout(function(){
                 delete $scope.errorMessage
@@ -119,7 +122,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
                     $location.path('/home');
                     $mdDialog.hide();
                 } else {
-                    $rootScope.$broadcast('modalError', response.data.errorMessage);
+                    $scope.emit('modalError', response.data.errorMessage);
                 }
             });
 
