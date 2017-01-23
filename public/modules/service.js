@@ -34,6 +34,21 @@ app.factory("httpInterceptor", ["$log", '$q', function ($log, $q) {
     };
 }]);
 
+app.factory('objHolder', function () {
+    var factory = {};
+    factory.objectRepo = {};
+    factory.setParam = function (key, value) {
+        factory.objectRepo[key] = value;
+    }
+    factory.getParam = function (key) {
+        return factory.objectRepo[key];
+    }
+    factory.removeParam = function (key) {
+        delete factory.objectRepo[key];
+    }
+    return factory;
+});
+
 app.service('videoHttpService', ['$http', '$q', '$rootScope', function ($http, $q, $rootScope) {
     this.call = function (config) {
         var deferred = $q.defer();
@@ -104,19 +119,4 @@ app.service('validationUtils', function () {
     this.validateUsername = function (username) {
         return username.length > 5;
     }
-});
-
-app.factory('objHolder', function () {
-    var factory = {};
-    factory.objectRepo = {};
-    factory.setParam = function (key, value) {
-        factory.objectRepo[key] = value;
-    }
-    factory.getParam = function (key) {
-        return factory.objectRepo[key];
-    }
-    factory.removeParam = function (key) {
-        delete factory.objectRepo[key];
-    }
-    return factory;
 });
