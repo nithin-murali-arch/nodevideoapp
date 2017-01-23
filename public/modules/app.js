@@ -115,7 +115,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
                 console.log(response);
                 if (response.data.message) {
                     $rootScope.$broadcast('appMsg', response.data.message);
-                    objHolder.setParam('user', $scope.login.user);
+                    objHolder.setParam('user', $scope.login.username);
                     $location.path('/home');
                     $mdDialog.hide();
                 } else {
