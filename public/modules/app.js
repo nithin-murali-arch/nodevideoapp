@@ -10,12 +10,11 @@ app.config(['$mdThemingProvider','$httpProvider',function($mdThemingProvider,$ht
 app.controller('ToolbarController', ['$scope', '$timeout', '$rootScope', 'objHolder', '$mdDialog', function ($scope, $timeout, $rootScope, objHolder, $mdDialog) {
         $scope.showLoginModal = function(){
         $mdDialog.show({
-          controller: LoginController,
+          controller: 'LoginController',
           templateUrl: 'modules/templates/login.html',
           parent: angular.element(document.body),
           targetEvent: ev,
-          clickOutsideToClose:true,
-          fullscreen: $scope.customFullscreen
+          clickOutsideToClose:true
         });
     };
     $scope.isUserLoggedIn = function(){
