@@ -13,7 +13,6 @@ app.controller('ToolbarController', ['$scope', '$timeout', '$rootScope', 'objHol
           controller: 'LoginController',
           templateUrl: 'modules/templates/login.html',
           parent: angular.element(document.body),
-          targetEvent: ev,
           clickOutsideToClose:true
         });
     };
