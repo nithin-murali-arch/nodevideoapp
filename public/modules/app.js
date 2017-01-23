@@ -7,7 +7,7 @@ app.config(['$mdThemingProvider','$httpProvider',function($mdThemingProvider,$ht
     $httpProvider.interceptors.push("httpInterceptor");
 }]);
 
-app.controller('ToolbarController', ['$scope', '$timeout', '$rootScope', 'objHolder', function ($scope, $timeout, $rootScope, objHolder) {
+app.controller('ToolbarController', ['$scope', '$timeout', '$rootScope', 'objHolder', '$mdDialog', function ($scope, $timeout, $rootScope, objHolder, $mdDialog) {
         $scope.showLoginModal = function(){
         $mdDialog.show({
           controller: LoginController,
