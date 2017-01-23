@@ -23,6 +23,16 @@ app.controller('MsgController', ['$scope', '$timeout', '$rootScope', function ($
     $rootScope.$on('hideLoadingOverlay', function(evt, data){
         $scope.showLoad = false;
     });
+    $scope.showLoginModal = function(){
+        $mdDialog.show({
+          controller: LoginController,
+          templateUrl: 'modules/templates/login.html',
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose:true,
+          fullscreen: $scope.customFullscreen
+        });
+    };
 }]);
 
 app.controller('LoadingController', ['$scope', '$rootScope', function ($scope, $rootScope) {
@@ -44,16 +54,6 @@ app.controller('WatchController', ['$scope', '$routeParams', 'videoHttpService',
     videoHttpService.call(videoMetadataConfig).then(function (response) {
         $scope.video = response.data;
     });
-    $scope.showLoginModal = function(){
-        $mdDialog.show({
-          controller: LoginController,
-          templateUrl: 'modules/templates/login.html',
-          parent: angular.element(document.body),
-          targetEvent: ev,
-          clickOutsideToClose:true,
-          fullscreen: $scope.customFullscreen
-        });
-    };
 }]);
 
 app.controller('CreateController', ['$scope', 'Upload', '$timeout', '$rootScope', '$location', function ($scope, Upload, $timeout, $rootScope, $location) {
