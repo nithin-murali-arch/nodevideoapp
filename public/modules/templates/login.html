@@ -1,76 +1,66 @@
-
-<div class="userSeg">
-	<div class="alert alert-danger" ng-if="errorMessage">
-	{{errorMessage}}
-</div>
-			<div class="col-md-6 col-md-offset-3">
-				<div class="panel panel-login">
-					<div class="panel-heading">
-						<div class="row">
-							<div class="col-xs-6">
-								<a href="" class="active" onclick="log()" id="login-form-link">Login</a>
-							</div>
-							<div class="col-xs-6">
-								<a href="" onclick="reg()" id="register-form-link">Register</a>
-							</div>
-						</div>
-						<hr>
-					</div>
-					<div class="panel-body">
-						<div class="row">
-							<div class="col-lg-12">
-								<div id="login-form" style="display: block;">
-									<div class="form-group">
-										<input type="text" ng-model="login.username" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" value="">
-									</div>
-									<div class="form-group">
-										<input type="password" name="password" ng-model="login.password" id="password" tabindex="2" class="form-control" placeholder="Password" press-enter="loginUser()">
-									</div>
-									<div class="form-group text-center">
-										<input type="checkbox" tabindex="3" class="" ng-model="login.remember" name="remember" id="remember">
-										<label for="remember"> Remember Me</label>
-									</div>
-									<div class="form-group">
-										<div class="row">
-											<div class="col-sm-6 col-sm-offset-3">
-												<button id="login-submit" tabindex="4" ng-click="loginUser()" class="form-control btn btn-login">Login</button>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="row">
-											<div class="col-lg-12">
-												<div class="text-center">
-													<a href="javascript:void(0)" tabindex="5" class="forgot-password">Forgot Password?</a>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div id="register-form" style="display: none;">
-									<div class="form-group">
-										<input type="text" name="username" id="username" tabindex="1" ng-model="register.username" class="form-control" placeholder="Username" value="">
-									</div>
-									<div class="form-group">
-										<input type="email" name="email" id="email" tabindex="1" ng-model="register.email" class="form-control" placeholder="Email Address" value="">
-									</div>
-									<div class="form-group">
-										<input type="password" name="password" id="password" ng-model="register.password" tabindex="2" class="form-control" placeholder="Password">
-									</div>
-									<div class="form-group">
-										<input type="password" name="confirm-password" ng-model="register.confpassword" id="confirm-password" tabindex="2" class="form-control" placeholder="Confirm Password">
-									</div>
-									<div class="form-group">
-										<div class="row">
-											<div class="col-sm-6 col-sm-offset-3">
-												<button name="register-submit" ng-click="registerUser()" id="register-submit" tabindex="4" class="form-control btn btn-register" value="">Register</button>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+<md-dialog flex-xs="100" flex-sm="50" flex-gt-sm="25">
+    <md-content class="md-padding panel-login">
+        <div class="alert alert-danger" ng-if="errorMessage">
+            {{errorMessage}}
+        </div>
+        <div layout="row" class="md-padding panel-heading">
+            <div flex class="flex-center">
+                <a href="" ng-class="{'active':!isRegister}" onclick="log()" ng-click="isRegister=false">Login</a>
+            </div>
+            <div flex class="flex-center">
+                <a href="" ng-class="{'active':isRegister}" onclick="reg()" ng-click="isRegister=true">Register</a>
+            </div>
+        </div>
+        <div layout="row">
+            <div ng-form="loginForm" layout="column" ng-if="!isRegister" flex>
+                <md-input-container>
+                    <label>Username</label>
+                    <input type="text" name="username" ng-model="login.username" required>
+                </md-input-container>
+                <md-input-container>
+                    <label>Password</label>
+                    <input type="password" name="password" ng-model="login.password" minlength="5" required>
+                    <div ng-show="loginForm.password.$error" ng-messages="loginForm.password.$error">
+                        <div ng-message="minlength">Min length should be 5</div>
+                    </div>
+                </md-input-container>
+                <md-checkbox name="remember" ng-model="login.remember">
+                    Remember Me
+                </md-checkbox>
+                <div class="flex-center">
+                    <md-button type="submit" class="md-raised md-primary" ng-disabled="loginForm.$invalid" ng-click="loginUser()">Login</md-button>
+                </div>
+                <div class="text-center">
+                    <a href="javascript:void(0)" class="forgot-password">Forgot Password?</a>
+                </div>
+            </div>
+            <div ng-form="registerForm" ng-if="isRegister" layout="column" flex>
+                <md-input-container>
+                    <label>Username</label>
+                    <input type="text" name="username" ng-model="register.username" required>
+                </md-input-container>
+                <md-input-container>
+                    <label>Email Address</label>
+                    <input type="email" name="email" ng-model="register.email" required>
+                </md-input-container>
+                <md-input-container>
+                    <label>Password</label>
+                    <input type="password" name="password" ng-model="register.password" minlength="5" required>
+                    <div ng-show="registerForm.password.$error" ng-messages="registerForm.password.$error">
+                        <div ng-message="md-minlength">Min length should be 5</div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirm-password" ng-model="register.confpassword" minlength="5" required>
+                    <div ng-show="registerForm.confirm-password.$invalid" ng-messages="registerForm.confirm-password.$error">
+                        <div ng-message="md-minlength">Min length should be 5</div>
+                    </div>
+                </md-input-container>
+                <div class="flex-center">
+                    <md-button type="submit" class="md-raised  md-primary" ng-disabled="registerForm.$invalid" ng-click="registerUser()">Register</md-button>
+                </div>
+            </div>
+        </div>
+    </md-content>
+</md-dialog>
