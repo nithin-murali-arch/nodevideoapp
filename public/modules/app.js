@@ -90,7 +90,7 @@ app.controller('SearchController', ['$scope', function($scope) {
     $scope.ui = {};
 }]);
 
-app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', '$mdDialog', function($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location, $mdDialog) {
+app.controller('LoginController', ['$scope', '$timeout', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', '$mdDialog', function($scope, $timeout, objHolder, validationUtils, videoHttpService, $rootScope, $location, $mdDialog) {
     $scope.isLogin = true;
     $scope.toggleLogin = function() {
         $scope.isLogin = !$scope.isLogin;
@@ -115,7 +115,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
                 delete $scope.errorMessage
             }, 3000);
         });
-        if ($scope.loginForm.$valid) {
+        if (this.loginForm.$valid) {
             videoHttpService.call(loginConfig).then(function(response) {
                 console.log(response);
                 if (response.data.message) {
@@ -124,7 +124,7 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
                     $location.path('/home');
                     $mdDialog.hide();
                 } else {
-                    $scope.emit('modalError', response.data.errorMessage);
+                    $scope.$emit('modalError', response.data.errorMessage);
                 }
             });
         }
@@ -140,9 +140,8 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
             url: 'register',
             data: $scope.register
         };
-        if ($scope.register.email && validationUtils.validateEmail($scope.register.email) && $scope.register.password && $scope.register.password.length > 5 && $scope.register.password === $scope.register.confpassword) {
+        if (this.registerForm.$valid && validationUtils.validateEmail($scope.register.email) && $scope.register.password === $scope.register.confpassword) {
             videoHttpService.call(registerConfig).then(function(response) {
-                console.log(response);
                 if (response.data.message) {
                     $rootScope.$broadcast('appMsg', response.data.message);
                     $location.path('/');
@@ -152,7 +151,6 @@ app.controller('LoginController', ['$scope', 'objHolder', 'validationUtils', 'vi
                     $rootScope.$broadcast('appError', response.data.errorMessage);
                 }
             });
-
         } else {
             $rootScope.$broadcast('appError', 'RegisterFormIssue');
         }

@@ -20,11 +20,13 @@
                 <md-input-container>
                     <label>Password</label>
                     <input type="password" name="password" ng-model="login.password" minlength="5" required>
-                    <div ng-show="loginForm.password.$error" ng-messages="loginForm.password.$error">
-                        <div ng-message="minlength">Min length should be 5</div>
+                    <div ng-show="loginForm.password.$touched&&loginForm.password.$invalid">
+                        <div ng-messages="loginForm.password.$error">
+                            <div ng-message="minlength">Min length should be 5</div>
+                        </div>
                     </div>
                 </md-input-container>
-                <md-checkbox name="remember" ng-model="login.remember">
+                <md-checkbox ng-model="login.remember">
                     Remember Me
                 </md-checkbox>
                 <div class="flex-center">
@@ -46,15 +48,19 @@
                 <md-input-container>
                     <label>Password</label>
                     <input type="password" name="password" ng-model="register.password" minlength="5" required>
-                    <div ng-show="registerForm.password.$error" ng-messages="registerForm.password.$error">
-                        <div ng-message="md-minlength">Min length should be 5</div>
+                    <div ng-show="registerForm.password.$touched&&registerForm.password.$invalid">
+                        <div ng-messages="registerForm.password.$error">
+                            <div ng-message="minlength">Min length should be 5</div>
+                        </div>
                     </div>
                 </md-input-container>
                 <md-input-container>
                     <label>Confirm Password</label>
-                    <input type="password" name="confirm-password" ng-model="register.confpassword" minlength="5" required>
-                    <div ng-show="registerForm.confirm-password.$invalid" ng-messages="registerForm.confirm-password.$error">
-                        <div ng-message="md-minlength">Min length should be 5</div>
+                    <input type="password" name="confirmpassword" ng-model="register.confpassword" minlength="5" required>
+                    <div ng-show="registerForm.confirmpassword.$touched&&registerForm.confirmpassword.$invalid">
+                        <div ng-messages="registerForm.confirmpassword.$error">
+                            <div ng-message="minlength">Min length should be 5</div>
+                        </div>
                     </div>
                 </md-input-container>
                 <div class="flex-center">
