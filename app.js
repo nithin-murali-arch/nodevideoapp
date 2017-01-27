@@ -7,25 +7,15 @@ var multer = require('multer');
 var session = require('express-session');
 var path = require("path");
 var fs = require("fs");
+var event = require('./appevents');
 var app = express();
-var EventEmitter = require('events');
-class MulterEvent extends EventEmitter {}
-var multerEvent = new MulterEvent();
 var multerUpload = multer({
 	storage: multer.diskStorage({
 		destination: './public/appvideos/',
 		onFileUploadStart: function (file) {
 			console.log('Starting file upload process.');
-			if (file.mimetype !== 'video/mp4') {
-				multerEvent.emit('multerEvent', 'Error: Mime type to be video/mp4 only!');
+			if (file.mimetype !== 'video/mp4' || !req.session.user) {
 				return false;
-			}
-			else if(!req.session.user){
-				multerEvent.emit('multerEvent', 'Error: Please login before you do that!');
-				return false;
-			}
-			else{
-				multerEvent.emit('multerEvent', 'Success!');
 			}
 		},
 		inMemory: true,
@@ -34,22 +24,23 @@ var multerUpload = multer({
 		}
 	})
 }).single('videoFile');
-//TODO remove once we use S3
-utility.refreshDBOnStart();
+
+var users = [];
+var loggedInUsers = new Set();
+event.eventObj.on('dbInitialized', function () {
+	//TODO remove once we use S3
+	utility.refreshDBOnStart();
+	users.push({ 'username': 'Nithin', 'password': 'Nithin' });
+	utility.fetchUsers().then(function (userarray) {
+		users = users.concat(userarray);
+	});
+});
 app.use(bodyParser.json());
 app.use(session({
 	resave: false,
 	saveUninitialized: false,
 	secret: 'i4M4H4CK3R'
 }));
-var users = [];
-var loggedInUsers = new Set();
-users.push({ 'username': 'Nithin', 'password': 'Nithin' });
-
-utility.fetchUsers().then(function (userarray) {
-	users = users.concat(userarray);
-});
-
 app.use('/', express.static('public'));
 
 app.post('/login', function (req, res) {
@@ -82,9 +73,9 @@ app.post('/register', function (req, res) {
 });
 
 app.get('/playVideo/:id', function (req, res) {
-	utility.fetchFromDB(req.params.id).then(function (video) {
+	utility.fetchVideo(req.params.id).then(function (video) {
 		res.contentType("video/mp4");
-		var path = "./public/appvideos/"+ video.fileName;
+		var path = "./public/appvideos/" + video.fileName;
 		var stat = fs.statSync(path);
 		var total = stat.size;
 		if (req.headers['range']) {
@@ -107,21 +98,21 @@ app.get('/playVideo/:id', function (req, res) {
 	});
 });
 
-app.get('/videoMetadata/:id', function(req, res){
-	utility.fetchFromDB(req.params.id).then(function(video){
+app.get('/videoMetadata/:id', function (req, res) {
+	utility.fetchVideo(req.params.id).then(function (video) {
 		res.end(JSON.stringify(video));
 	});
 });
 
 app.post('/addVideo', multerUpload, function (req, res) {
 
-			console.log('not an error');
-			req.body.fileName = req.file.filename;
-			req.body.date = new Date();
-			utility.persist(req.body);
-			console.log(JSON.stringify(req.body));	
+	console.log('not an error');
+	req.body.fileName = req.file.filename;
+	req.body.date = new Date();
+	utility.persist(req.body);
+	console.log(JSON.stringify(req.body));
 	res.send("Success!");
-	
+
 });
 
 app.get('/findVideo/:keyword', function (req, res) {
@@ -150,7 +141,7 @@ app.get('/listHome', function (req, res) {
 	});
 });
 
-app.get('/getFiles', function(req, res){
+app.get('/getFiles', function (req, res) {
 	res.send(JSON.stringify(utility.getFolderContents));
 });
 

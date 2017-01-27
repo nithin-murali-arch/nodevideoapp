@@ -91,6 +91,7 @@ app.controller('SearchController', ['$scope', function($scope) {
 }]);
 
 app.controller('LoginController', ['$scope', '$timeout', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', '$mdDialog', function($scope, $timeout, objHolder, validationUtils, videoHttpService, $rootScope, $location, $mdDialog) {
+    $scope.login = {};
     $scope.isLogin = true;
     $scope.toggleLogin = function() {
         $scope.isLogin = !$scope.isLogin;

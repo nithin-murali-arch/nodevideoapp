@@ -1,4 +1,5 @@
 var fs = require('fs');
+var db = require('./db');
 var MongoClient = require('mongodb').MongoClient;
 var ffmpeg = require('fluent-ffmpeg');
 var ObjectId = require('mongodb').ObjectID;
@@ -6,24 +7,11 @@ var _DEFAULTS = {
     connTimeout: 1000, //millis
     videos: 'public/appvideos/',
     thumbnails: './public/thumbnails',
-    tpath: 'thumbnails'
+    tpath: 'thumbnails',
+    videos: 'videos',
+    users: 'users',
+    thumbnail_limit: 10
 };
-
-var closeConnection = function (db) {
-    setTimeout(function () {
-        db.close();
-    }, _DEFAULTS.connTimeout);
-};
-
-var getConnectionString = function () {
-    var secObj = JSON.parse(fs.readFileSync('dbauth.json', 'utf8'));
-    var userPass;
-    if (secObj.user && secObj.pass) {
-        userPass = secObj.user + ':' + secObj.pass + '@';
-    }
-    var mongoStr = "mongodb://" + (userPass ? userPass : '') + secObj.host + ":" + secObj.port + "/" + secObj.database;
-    return mongoStr;
-}
 
 var prepareThumbnail = function (videoPath, fileName) {
     var proc = new ffmpeg(videoPath + fileName).takeScreenshots({
@@ -39,38 +27,26 @@ var prepareThumbnail = function (videoPath, fileName) {
     });
     proc.setFfmpegPath('ffmpeg/ffmpeg');
     proc.setFfprobePath('ffmpeg/ffprobe');
-}
+};
 
-exports.fetchFromDB = function (id) {
-    return new Promise(function (resolve, reject) {
-        MongoClient.connect(getConnectionString()).then(function (db) {
-            var collection = db.collection('videos');
-            collection.findOne({ "_id": new ObjectId(id) }, function (error, result) {
-                closeConnection(db);
-                resolve(result);
-            });
-        });
+exports.fetchVideo = function (id) {
+    var criteria = { "_id": new ObjectId(id) };
+    db.getOne(_DEFAULTS.videos, criteria).then(function (video) {
+        return video;
     });
-}
+};
 
 exports.validateUserExists = function (username, users) {
     return users.filter(function (object) {
         return object.username == username;
     });
-}
+};
 
 exports.fetchUsers = function () {
-    return new Promise(function (resolve, reject) {
-        var object;
-        MongoClient.connect(getConnectionString()).then(function (db) {
-            var collection = db.collection('users');
-            collection.find().toArray(function (err, results) {
-                closeConnection(db);
-                resolve(results);
-            });
-        });
+    return db.get(_DEFAULTS.users).then(function (users) {
+        return users;
     });
-}
+};
 
 exports.validateLogin = function (username, password, users) {
     var hasUser = exports.validateUserExists(username, users).length != 0;
@@ -82,109 +58,47 @@ exports.validateLogin = function (username, password, users) {
     } else {
         return false;
     }
-}
+};
 
 exports.registerUser = function (user) {
-    MongoClient.connect(getConnectionString(), function (err, db) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        var collection = db.collection('users');
-        collection.insertOne(user, function (err, result) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log('Inserted user into users');
-            }
-            db.close();
-        });
-    });
-}
+    db.add(_DEFAULTS.users, user);
+};
 
 exports.persist = function (video) {
-    console.log(getConnectionString());
     prepareThumbnail(_DEFAULTS.videos, video.fileName);
     video.thumbnail = _DEFAULTS.tpath + '/' + video.fileName + '.jpg';
-    MongoClient.connect(getConnectionString(), function (err, db) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        var collection = db.collection('videos');
-        collection.insertOne(video, function (err, result) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log('Inserted entry into the "videos" collection');
-            }
-            db.close();
-        });
-    });
-}
+    db.add(_DEFAULTS.videos, video);
+};
 
 exports.find = function (keyword) {
-    return new Promise(function (resolve, reject) {
-        var object;
-        MongoClient.connect(getConnectionString()).then(function (db) {
-            var collection = db.collection('videos');
-            collection.find({
-                "videoName": {
-                    "$regex": keyword
-                }
-            }).toArray(function (err, results) {
-                console.log(results); // output all records
-                closeConnection(db);
-                resolve(results);
-            });
-        });
+    var search = {
+        "$or": [
+            { "videoName": { "$regex": keyword } },
+            { "videoDesc": { "$regex": keyword } }]
+    };
+    return db.get(_DEFAULTS.videos, search).then(function(videos){
+        return videos;
     });
-}
+};
 
 exports.listHot = function (keyword) {
-    return new Promise(function (resolve, reject) {
-        var object;
-        MongoClient.connect(getConnectionString()).then(function (db) {
-            var collection = db.collection('videos');
-            collection.find().sort({ views: -1 }).limit(5).toArray(function (err, results) {
-                closeConnection(db);
-                resolve(results);
-            });
-        });
+    var sort = { views: -1 };
+    return db.get(_DEFAULTS.videos, null, sort, _DEFAULTS.thumbnail_limit).then(function(videos){
+        return videos;
     });
-}
+};
 
 exports.listNew = function (keyword) {
-    return new Promise(function (resolve, reject) {
-        var object;
-        MongoClient.connect(getConnectionString()).then(function (db) {
-            var collection = db.collection('videos');
-            collection.find().sort({ date: -1 }).limit(5).toArray(function (err, results) {
-                closeConnection(db);
-                resolve(results);
-            });
-        });
+    var sort = { date: -1 };
+    return db.get(_DEFAULTS.videos, null, sort, _DEFAULTS.thumbnail_limit).then(function(videos){
+        return videos;
     });
-}
+};
 
 exports.incrementView = function (video) {
-    MongoClient.connect(getConnectionString(), function (err, db) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        var collection = db.collection('videos');
-        video.views = parseInt(video.views) + 1;
-        collection.update({ _id: new ObjectId(video._id) }, video, function (err, result) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log('Updated ID: ' + video._id + ' with View: ' + video.views);
-            }
-            db.close();
-        });
-    });
-}
+    video.views = parseInt(video.views) + 1;
+    db.update(_DEFAULTS.videos, { _id: new ObjectId(video._id) }, video);
+};
 
 exports.getFolderContents = function () {
     const testFolder = _DEFAULTS.thumbnails;
@@ -216,14 +130,5 @@ exports.rmDir = function (dirPath) {
 };
 
 exports.refreshDBOnStart = function () {
-    MongoClient.connect(getConnectionString(), function (err, db) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        db.collection('videos').drop();
-        db.createCollection('videos');
-        db.close();
-        console.log("Refreshed DB")
-    });
+    db.refreshDB();
 }
