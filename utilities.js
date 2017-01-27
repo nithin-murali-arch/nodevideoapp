@@ -65,7 +65,7 @@ exports.registerUser = function (user) {
 };
 
 exports.persist = function (video) {
-    prepareThumbnail('appvideos', video.fileName);
+    prepareThumbnail('public/appvideos', video.fileName);
     video.thumbnail = _DEFAULTS.tpath + '/' + video.fileName + '.jpg';
     db.add(_DEFAULTS.videos, video);
 };
