@@ -14,7 +14,7 @@ var _DEFAULTS = {
 };
 
 var prepareThumbnail = function (videoPath, fileName) {
-    var proc = new ffmpeg(videoPath + fileName).takeScreenshots({
+    var proc = new ffmpeg(videoPath + '/' + fileName).takeScreenshots({
         count: 1,
         filename: fileName + '.jpg',
         size: '320x240',
@@ -65,7 +65,7 @@ exports.registerUser = function (user) {
 };
 
 exports.persist = function (video) {
-    prepareThumbnail(_DEFAULTS.videos, video.fileName);
+    prepareThumbnail('appvideos', video.fileName);
     video.thumbnail = _DEFAULTS.tpath + '/' + video.fileName + '.jpg';
     db.add(_DEFAULTS.videos, video);
 };
