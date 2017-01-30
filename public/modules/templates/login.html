@@ -19,7 +19,7 @@
                 </md-input-container>
                 <md-input-container>
                     <label>Password</label>
-                    <input type="password" name="password" ng-model="login.password" minlength="5" required>
+                    <input type="password" name="password" ng-model="login.password" minlength="5" press-enter="loginUser()" required>
                     <div ng-show="loginForm.password.$touched&&loginForm.password.$invalid">
                         <div ng-messages="loginForm.password.$error">
                             <div ng-message="minlength">Min length should be 5</div>
