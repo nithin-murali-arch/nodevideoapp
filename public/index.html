@@ -47,8 +47,8 @@
             <md-button class="md-button md-primary md-raised" ng-click="showLoginModal()" ng-if="!isUserLoggedIn()">
               Login
             </md-button>
-            <md-button class="md-button md-warn md-raised" ng-click="redirectToCreate()" ng-if="isUserLoggedIn()">
-              Upload
+            <md-button class="md-icon-button" ng-click="redirectToCreate()" ng-if="isUserLoggedIn()">
+                <md-icon>arrow_upward</md-icon>
             </md-button>
           </div>
         </md-toolbar>
