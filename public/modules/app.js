@@ -62,7 +62,7 @@ app.controller('WatchController', ['$scope', '$routeParams', 'videoHttpService',
     $scope.videoUrl = '/playVideo/' + $routeParams.id;
     videoMetadataConfig.url = videoMetadataConfig.url + '/' + $routeParams.id;
     videoHttpService.call(videoMetadataConfig).then(function(response) {
-        $scope.video = response.data;
+        $scope.video = response.data.video;
     });
 }]);
 
