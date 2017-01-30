@@ -35,8 +35,8 @@
     <div ng-controller="ToolbarController">
         <md-toolbar class="md-hue-2">
           <div class="md-toolbar-tools">
-            <md-button class="md-icon-button">
-              <md-icon>menu</md-icon>
+            <md-button ng-click="goHome()" class="md-icon-button">
+              <md-icon>home</md-icon>
             </md-button>
             <md-input-container flex class="display-flex">
                 <input ng-model="search" />
