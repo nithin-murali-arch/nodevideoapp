@@ -31,7 +31,7 @@ var prepareThumbnail = function (videoPath, fileName) {
 
 exports.fetchVideo = function (id) {
     var criteria = { "_id": new ObjectId(id) };
-    db.getOne(_DEFAULTS.videos, criteria).then(function (video) {
+    return db.getOne(_DEFAULTS.videos, criteria).then(function (video) {
         return video;
     });
 };
