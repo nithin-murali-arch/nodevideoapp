@@ -12,6 +12,11 @@ var app = express();
 var multerUpload = multer({
     storage: multer.diskStorage({
         destination: './public/appvideos/',
+	fileFilter: function(req, file, cb){
+		if(path.extname(file.originalname) !== '.mp4'){
+			return cb(new Error('Only MP4 videos are allowed'));
+		}
+	},
         onFileUploadStart: function(file) {
             console.log('Starting file upload process.');
             if (file.mimetype !== 'video/mp4' || !req.session.user) {
