@@ -101,7 +101,10 @@ app.get('/playVideo/:id', function(req, res) {
 });
 
 app.get('/videoMetadata/:id', function(req, res) {
-    res.end(JSON.stringify(utility.fetchVideo(req.params.id)));
+    utility.fetchVideo(req.params.id).then(function(video){
+        res.end(JSON.stringify(video));
+    });
+    
 });
 
 app.post('/addVideo', multerUpload, function(req, res) {

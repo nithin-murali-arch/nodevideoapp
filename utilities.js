@@ -12,6 +12,7 @@ var _DEFAULTS = {
     users: 'users',
     thumbnail_limit: 10
 };
+var videoDataCache = [];
 
 var prepareThumbnail = function (videoPath, fileName) {
     var proc = new ffmpeg(videoPath + '/' + fileName).takeScreenshots({
@@ -30,9 +31,16 @@ var prepareThumbnail = function (videoPath, fileName) {
 };
 
 exports.fetchVideo = function (id) {
-    var criteria = { "_id": new ObjectId(id) };
-    return db.getOne(_DEFAULTS.videos, criteria).then(function (video) {
-        return video;
+    return new Promise(function (resolve, reject) {
+        var videoObj = videoDataCache[id];
+        if (videoObj === undefined) {
+            var criteria = { "_id": new ObjectId(id) };
+            videoObj = db.getOne(_DEFAULTS.videos, criteria).then(function (video) {
+                return video;
+            });
+            videoDataCache[id] = videoObj;
+        }
+        resolve(videoObj);
     });
 };
 
@@ -76,21 +84,21 @@ exports.find = function (keyword) {
             { "videoName": { "$regex": keyword } },
             { "videoDesc": { "$regex": keyword } }]
     };
-    return db.get(_DEFAULTS.videos, search).then(function(videos){
+    return db.get(_DEFAULTS.videos, search).then(function (videos) {
         return videos;
     });
 };
 
 exports.listHot = function (keyword) {
     var sort = { views: -1 };
-    return db.get(_DEFAULTS.videos, null, sort, _DEFAULTS.thumbnail_limit).then(function(videos){
+    return db.get(_DEFAULTS.videos, null, sort, _DEFAULTS.thumbnail_limit).then(function (videos) {
         return videos;
     });
 };
 
 exports.listNew = function (keyword) {
     var sort = { date: -1 };
-    return db.get(_DEFAULTS.videos, null, sort, _DEFAULTS.thumbnail_limit).then(function(videos){
+    return db.get(_DEFAULTS.videos, null, sort, _DEFAULTS.thumbnail_limit).then(function (videos) {
         return videos;
     });
 };
