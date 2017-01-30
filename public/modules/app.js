@@ -22,6 +22,9 @@ app.controller('ToolbarController', ['$scope', '$timeout', '$rootScope', 'objHol
     $scope.redirectToCreate = function() {
         $location.path('/create');
     };
+    $scope.goHome = function() {
+        $location.path('/');
+    };
     $scope.$on("$routeChangeError", function(evt, current, previous, rejection) {
         $rootScope.$broadcast('appError', rejection);
     });
