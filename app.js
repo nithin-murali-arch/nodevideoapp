@@ -14,15 +14,12 @@ var multerUpload = multer({
         destination: './public/appvideos/',
 	fileFilter: function(req, file, cb){
 		if(path.extname(file.originalname) !== '.mp4'){
-			return cb(new Error('Only MP4 videos are allowed'));
+			return cb(new Error('Only MP4 videos are allowed.'));
+		}
+		if(!req.session.user){
+			return cb(new Error('Please log in first.'));
 		}
 	},
-        onFileUploadStart: function(file) {
-            console.log('Starting file upload process.');
-            if (file.mimetype !== 'video/mp4' || !req.session.user) {
-                return false;
-            }
-        },
         inMemory: true,
         filename: function(req, file, callback) {
             callback(null, file.fieldname + '-' + Date.now());
