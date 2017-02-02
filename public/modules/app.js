@@ -54,7 +54,7 @@ app.controller('LoadingController', ['$scope', '$rootScope', function($scope, $r
     });
 }]);
 
-app.controller('HomeController', ['$scope', 'objHolder', 'validationUtils', '\HttpService', '$rootScope', '$location', 'uiData', function($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location, uiData) {
+app.controller('HomeController', ['$scope', 'objHolder', 'validationUtils', 'videoHttpService', '$rootScope', '$location', 'uiData', function($scope, objHolder, validationUtils, videoHttpService, $rootScope, $location, uiData) {
     $scope.ui = uiData;
 }]);
 
