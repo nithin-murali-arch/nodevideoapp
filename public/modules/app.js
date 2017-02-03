@@ -151,6 +151,7 @@ app.controller('LoginController', ['$scope', '$timeout', 'objHolder', 'validatio
                     $rootScope.$broadcast('appMsg', response.data.message);
                     $location.path('/');
                     $scope.register = {};
+                    this.register.$setPristine();
                     log();
                 } else if (response.data.errorMessage) {
                     $rootScope.$broadcast('appError', response.data.errorMessage);
