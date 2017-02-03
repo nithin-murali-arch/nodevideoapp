@@ -144,7 +144,7 @@ app.controller('LoginController', ['$scope', '$timeout', 'objHolder', 'validatio
             url: 'register',
             data: $scope.register
         };
-        if (this.registerForm.$valid && validationUtils.validateEmail($scope.register.email) && $scope.register.password === $scope.register.confpassword) {
+        if (this.registerForm.$valid && validationUtils.validateEmail(this.register.email) && this.register.password === this.register.confpassword) {
             videoHttpService.call(registerConfig).then(function(response) {
                 if (response.data.message) {
                     $rootScope.$broadcast('appMsg', response.data.message);
