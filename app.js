@@ -44,7 +44,13 @@ app.use(session({
     secret: 'i4M4H4CK3R'
 }));
 app.use('/', express.static('public'));
-
+app.use(function(req,res,next) {
+    if(req.headers["x-forwarded-proto"] === "http") {
+        res.redirect("https://" + req.host + "/" + req.url);
+    } else {
+        return next();
+    } 
+});
 app.post('/login', function (req, res) {
     var loggedIn = utility.validateLogin(req.body.username, req.body.password, users);
     if (loggedIn || req.session.user) {
@@ -128,10 +134,6 @@ app.get('/refresh', function (req, res) {
     utility.refreshDBOnStart();
 });
 
-app.get('*',function(req,res){  
-    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-})
-
 app.get('/listHome', function (req, res) {
     var resp = {};
     utility.listHot(req.params.keyword).then(function (hot) {
@@ -156,13 +158,7 @@ http.createServer({
     key: fs.readFileSync(__dirname + '/server.key'),
     cert: fs.readFileSync(__dirname + '/server.cert'),
       spdy: {
-    protocols: [ 'h2', 'spdy/3.1', 'http/1.1' ],
-    plain: false,
-    'x-forwarded-for': true,
-    connection: {
-        windowSize: 1024 * 1024, // Server's window size
-        autoSpdy31: false
-    }
+    protocols: [ 'h2']
   }
 }, app, (err) => {
     if (err) {
