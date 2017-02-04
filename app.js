@@ -1,5 +1,5 @@
 'use strict';
-var http = require('http');
+var http = require('spdy');
 var utility = require('./utilities');
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -12,16 +12,16 @@ var app = express();
 var multerUpload = multer({
     storage: multer.diskStorage({
         destination: './public/appvideos/',
-	fileFilter: function(req, file, cb){
-		if(path.extname(file.originalname) !== '.mp4'){
-			return cb(new Error('Only MP4 videos are allowed.'));
-		}
-		if(!req.session.user){
-			return cb(new Error('Please log in first.'));
-		}
-	},
+        fileFilter: function (req, file, cb) {
+            if (path.extname(file.originalname) !== '.mp4') {
+                return cb(new Error('Only MP4 videos are allowed.'));
+            }
+            if (!req.session.user) {
+                return cb(new Error('Please log in first.'));
+            }
+        },
         inMemory: true,
-        filename: function(req, file, callback) {
+        filename: function (req, file, callback) {
             callback(null, file.fieldname + '-' + Date.now());
         }
     })
@@ -29,11 +29,11 @@ var multerUpload = multer({
 
 var users = [];
 var loggedInUsers = new Set();
-event.eventObj.on('dbInitialized', function() {
+event.eventObj.on('dbInitialized', function () {
     //TODO remove once we use S3
-	if(process.env.PORT || 1337 !== 1337){
-		utility.refreshDBOnStart();
-	}
+    if (process.env.PORT || 1337 !== 1337) {
+        utility.refreshDBOnStart();
+    }
     users.push({ 'username': 'Nithin', 'password': 'Nithin' });
     users = users.concat(utility.fetchUsers());
 });
@@ -45,7 +45,7 @@ app.use(session({
 }));
 app.use('/', express.static('public'));
 
-app.post('/login', function(req, res) {
+app.post('/login', function (req, res) {
     var loggedIn = utility.validateLogin(req.body.username, req.body.password, users);
     if (loggedIn || req.session.user) {
         var usr = req.body.username ? req.body.username : req.session.user;
@@ -57,11 +57,11 @@ app.post('/login', function(req, res) {
     }
 });
 
-app.get('/usersList', function(req, res) {
+app.get('/usersList', function (req, res) {
     res.send(users);
 });
 
-app.post('/register', function(req, res) {
+app.post('/register', function (req, res) {
     var result = utility.validateUserExists(req.body.username, users);
     if (result.length === 0) {
         var userObj = { 'username': req.body.username, 'password': req.body.password };
@@ -74,8 +74,8 @@ app.post('/register', function(req, res) {
     }
 });
 
-app.get('/playVideo/:id', function(req, res) {
-    var video = utility.fetchVideo(req.params.id).then(function(video) {
+app.get('/playVideo/:id', function (req, res) {
+    var video = utility.fetchVideo(req.params.id).then(function (video) {
         console.log(video);
         res.contentType("video/mp4");
         var path = "./public/appvideos/" + video.fileName;
@@ -102,14 +102,14 @@ app.get('/playVideo/:id', function(req, res) {
 
 });
 
-app.get('/videoMetadata/:id', function(req, res) {
-    utility.fetchVideo(req.params.id).then(function(video){
-        res.end(JSON.stringify(video));
+app.get('/videoMetadata/:id', function (req, res) {
+    utility.fetchVideo(req.params.id).then(function (video) {
+        res.send(JSON.stringify(video));
     });
-    
+
 });
 
-app.post('/addVideo', multerUpload, function(req, res) {
+app.post('/addVideo', multerUpload, function (req, res) {
 
     console.log('not an error');
     req.body.fileName = req.file.filename;
@@ -120,32 +120,49 @@ app.post('/addVideo', multerUpload, function(req, res) {
 
 });
 
-app.get('/findVideo/:keyword', function(req, res) {
+app.get('/findVideo/:keyword', function (req, res) {
     res.send(utility.find(req.params.keyword));
 });
 
-app.get('/refresh', function(req, res) {
+app.get('/refresh', function (req, res) {
     utility.refreshDBOnStart();
 });
 
-app.get('/listHome', function(req, res) {
+app.get('/listHome', function (req, res) {
     var resp = {};
-	utility.listHot(req.params.keyword).then(function(hot) {
-		resp.hot = hot;
+    utility.listHot(req.params.keyword).then(function (hot) {
+        resp.hot = hot;
         if (resp.new !== undefined) {
             res.send(resp);
         }
     });
-    utility.listNew(req.params.keyword).then(function(newObj) {
+    utility.listNew(req.params.keyword).then(function (newObj) {
         resp.new = newObj;
         if (resp.hot !== undefined) {
             res.send(resp);
         }
-    }); 
+    });
 });
 
-app.get('/getFiles', function(req, res) {
+app.get('/getFiles', function (req, res) {
     res.send(JSON.stringify(utility.getFolderContents));
 });
 
-app.listen(process.env.PORT || 1337);
+http.createServer({
+    key: fs.readFileSync(__dirname + '/server.key'),
+    cert: fs.readFileSync(__dirname + '/server.cert'),
+      spdy: {
+    protocols: [ 'h2', 'spdy/3.1', 'http/1.1' ],
+    plain: false,
+    'x-forwarded-for': true,
+    connection: {
+        windowSize: 1024 * 1024, // Server's window size
+        autoSpdy31: false
+    }
+  }
+}, app, (err) => {
+    if (err) {
+        throw new Error(err);
+    }
+    console.log('Listening on port: ' + argv.port + '.');
+}).listen(process.env.PORT || 1337);
