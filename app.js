@@ -44,13 +44,14 @@ app.use(session({
     secret: 'i4M4H4CK3R'
 }));
 app.use('/', express.static('public'));
-app.use(function(req,res,next) {
-    if(req.headers["x-forwarded-proto"] === "http") {
-        res.redirect("https://" + req.host + "/" + req.url);
-    } else {
-        return next();
-    } 
-});
+//TODO uncomment when using TLS
+// app.use(function(req,res,next) {
+//     if(req.headers["x-forwarded-proto"] === "http") {
+//         res.redirect("https://" + req.host + "/" + req.url);
+//     } else {
+//         return next();
+//     } 
+// });
 app.post('/login', function (req, res) {
     var loggedIn = utility.validateLogin(req.body.username, req.body.password, users);
     if (loggedIn || req.session.user) {
@@ -158,7 +159,9 @@ http.createServer({
     key: fs.readFileSync(__dirname + '/server.key'),
     cert: fs.readFileSync(__dirname + '/server.cert'),
       spdy: {
-    protocols: [ 'h2']
+    protocols: [ 'h2'],
+    plain: true, 
+    ssl: false
   }
 }, app, (err) => {
     if (err) {
