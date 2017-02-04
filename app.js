@@ -128,6 +128,10 @@ app.get('/refresh', function (req, res) {
     utility.refreshDBOnStart();
 });
 
+app.get('*',function(req,res){  
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+})
+
 app.get('/listHome', function (req, res) {
     var resp = {};
     utility.listHot(req.params.keyword).then(function (hot) {
