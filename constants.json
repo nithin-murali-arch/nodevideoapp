@@ -1,0 +1,8 @@
+{
+	"isH2Application": true,
+	"clientId": "<gplus-key>",
+	"clientSecret": "<gplus-secret>",
+	"oauthCallBack": "http://nodevideoapp.herokuapp.com/oauthcallback",
+	"facebook_api_key": "<fb key>",
+	"facebook_api_secret": "<fb secret>"
+}
