@@ -1,5 +1,5 @@
 'use strict';
-var http = require('spdy');
+
 var utility = require('./utilities');
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -7,21 +7,48 @@ var multer = require('multer');
 var session = require('express-session');
 var path = require("path");
 var fs = require("fs");
+var constants = JSON.parse(fs.readFileSync('constants.json', 'utf8'));
+var http = constants.isH2Application ? require('spdy') : require('http');
+var google = require('googleapis');
+var OAuth2 = google.auth.OAuth2;
+var passport = require('passport');
+var FacebookStrategy = require('passport-facebook').Strategy;
+passport.use(new FacebookStrategy({
+    clientID: constants.facebook_api_key,
+    clientSecret: constants.facebook_api_secret,
+    callbackURL: "http://nodevideoapp-nithinmurali.rhcloud.com/fboauthCallBack"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
+ var oauth2Client = new OAuth2(
+   constants.clientId,
+   constants.clientSecret,
+   constants.oauthCallBack
+ );
+ var scopes = ['https://www.googleapis.com/auth/plus.me'];
+ var url = oauth2Client.generateAuthUrl({
+ 	access_type: 'offline',
+ 	scope: scopes,
+ });
 var event = require('./appevents');
 var app = express();
 var multerUpload = multer({
     storage: multer.diskStorage({
         destination: './public/appvideos/',
-        fileFilter: function (req, file, cb) {
-            if (path.extname(file.originalname) !== '.mp4') {
-                return cb(new Error('Only MP4 videos are allowed.'));
-            }
-            if (!req.session.user) {
-                return cb(new Error('Please log in first.'));
-            }
-        },
+	fileFilter: function(req, file, cb){
+		if(path.extname(file.originalname) !== '.mp4'){
+			return cb(new Error('Only MP4 videos are allowed.'));
+		}
+		if(!req.session.user){
+			return cb(new Error('Please log in first.'));
+		}
+	},
         inMemory: true,
-        filename: function (req, file, callback) {
+        filename: function(req, file, callback) {
             callback(null, file.fieldname + '-' + Date.now());
         }
     })
@@ -29,11 +56,11 @@ var multerUpload = multer({
 
 var users = [];
 var loggedInUsers = new Set();
-event.eventObj.on('dbInitialized', function () {
+event.eventObj.on('dbInitialized', function() {
     //TODO remove once we use S3
-    if (process.env.PORT || 1337 !== 1337) {
-        utility.refreshDBOnStart();
-    }
+	if(process.env.PORT || 1337 !== 1337){
+		utility.refreshDBOnStart();
+	}
     users.push({ 'username': 'Nithin', 'password': 'Nithin' });
     users = users.concat(utility.fetchUsers());
 });
@@ -44,18 +71,11 @@ app.use(session({
     secret: 'i4M4H4CK3R'
 }));
 app.use('/', express.static('public'));
-//TODO uncomment when using TLS
-// app.use(function(req,res,next) {
-//     if(req.headers["x-forwarded-proto"] === "http") {
-//         res.redirect("https://" + req.host + "/" + req.url);
-//     } else {
-//         return next();
-//     } 
-// });
-app.post('/login', function (req, res) {
+
+app.post('/login', function(req, res) {
     var loggedIn = utility.validateLogin(req.body.username, req.body.password, users);
-    if (loggedIn || req.session.user) {
-        var usr = req.body.username ? req.body.username : req.session.user;
+    var usr = (req.body.username && loggedIn) ? req.body.username : req.user || req.session.user;
+    if (usr) {
         res.send('{"message": "Logged in!"}');
         loggedInUsers.add(usr, new Date());
     }
@@ -64,11 +84,11 @@ app.post('/login', function (req, res) {
     }
 });
 
-app.get('/usersList', function (req, res) {
+app.get('/usersList', function(req, res) {
     res.send(users);
 });
 
-app.post('/register', function (req, res) {
+app.post('/register', function(req, res) {
     var result = utility.validateUserExists(req.body.username, users);
     if (result.length === 0) {
         var userObj = { 'username': req.body.username, 'password': req.body.password };
@@ -81,8 +101,8 @@ app.post('/register', function (req, res) {
     }
 });
 
-app.get('/playVideo/:id', function (req, res) {
-    var video = utility.fetchVideo(req.params.id).then(function (video) {
+app.get('/playVideo/:id', function(req, res) {
+    var video = utility.fetchVideo(req.params.id).then(function(video) {
         console.log(video);
         res.contentType("video/mp4");
         var path = "./public/appvideos/" + video.fileName;
@@ -109,14 +129,14 @@ app.get('/playVideo/:id', function (req, res) {
 
 });
 
-app.get('/videoMetadata/:id', function (req, res) {
-    utility.fetchVideo(req.params.id).then(function (video) {
-        res.send(JSON.stringify(video));
+app.get('/videoMetadata/:id', function(req, res) {
+    utility.fetchVideo(req.params.id).then(function(video){
+        res.end(JSON.stringify(video));
     });
-
+    
 });
 
-app.post('/addVideo', multerUpload, function (req, res) {
+app.post('/addVideo', multerUpload, function(req, res) {
 
     console.log('not an error');
     req.body.fileName = req.file.filename;
@@ -127,45 +147,64 @@ app.post('/addVideo', multerUpload, function (req, res) {
 
 });
 
-app.get('/findVideo/:keyword', function (req, res) {
+app.get('/findVideo/:keyword', function(req, res) {
     res.send(utility.find(req.params.keyword));
 });
 
-app.get('/refresh', function (req, res) {
+app.get('/refresh', function(req, res) {
     utility.refreshDBOnStart();
 });
 
-app.get('/listHome', function (req, res) {
+app.get('/listHome', function(req, res) {
     var resp = {};
-    utility.listHot(req.params.keyword).then(function (hot) {
-        resp.hot = hot;
+	resp.url = url;
+	utility.listHot(req.params.keyword).then(function(hot) {
+		resp.hot = hot;
         if (resp.new !== undefined) {
             res.send(resp);
         }
     });
-    utility.listNew(req.params.keyword).then(function (newObj) {
+    utility.listNew(req.params.keyword).then(function(newObj) {
         resp.new = newObj;
         if (resp.hot !== undefined) {
             res.send(resp);
         }
-    });
+    }); 
 });
 
-app.get('/getFiles', function (req, res) {
+app.get('/auth/facebook', passport.authenticate('facebook'), function(req, res){});
+
+app.get('/getFiles', function(req, res) {
     res.send(JSON.stringify(utility.getFolderContents));
 });
 
+app.get('/oauthCallBack', function(req, res) {
+    utility.validateUserExists(req.body.username, users);
+    res.end(JSON.stringify(req));
+});
+
+app.get('/fboauthCallBack', passport.authenticate('facebook', {
+            successRedirect : '/login',
+            failureRedirect : '/'
+        }));
+
+if(constants.isH2Application) {
 http.createServer({
     key: fs.readFileSync(__dirname + '/server.key'),
     cert: fs.readFileSync(__dirname + '/server.cert'),
       spdy: {
-    protocols: [ 'h2'],
-    plain: true, 
-    ssl: false
+    protocols: [ 'h2', 'spdy'],
+    plain: false, 
+    ssl: true
   }
 }, app, (err) => {
     if (err) {
         throw new Error(err);
     }
-    console.log('Listening on port: ' + argv.port + '.');
-}).listen(process.env.PORT || 1337);
+}).listen(process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 1337, process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1', (error) => {
+    console.log(error);
+});
+}
+else {
+    app.listen(process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 1337, process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1');
+}
