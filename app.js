@@ -12,18 +12,27 @@ var http = constants.isH2Application ? require('spdy') : require('http');
 var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 var passport = require('passport');
+var crypto = require('crypto');
 var FacebookStrategy = require('passport-facebook').Strategy;
 passport.use(new FacebookStrategy({
     clientID: constants.facebook_api_key,
     clientSecret: constants.facebook_api_secret,
-    callbackURL: "http://nodevideoapp-nithinmurali.rhcloud.com/fboauthCallBack"
+    callbackURL: "http://nodevideoapp-nithinmurali.rhcloud.com/fboauthCallBack",
+    passReqToCallback: true,
+    profileFields: 'emails'
   },
   function(accessToken, refreshToken, profile, cb) {
-    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-      return cb(err, user);
-    });
+      if(!utility.validateUserExists(profile.id)){
+          utility.registerUser({'username': profile.id, 'password': crypto.createHash('md5').update(getRandomInt(0, 1000)).digest("hex")});
+      }
+    return cb(null, profile.id);
   }
 ));
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
  var oauth2Client = new OAuth2(
    constants.clientId,
    constants.clientSecret,
@@ -172,7 +181,7 @@ app.get('/listHome', function(req, res) {
     }); 
 });
 
-app.get('/auth/facebook', passport.authenticate('facebook'), function(req, res){});
+app.get('/auth/facebook', passport.authenticate('facebook', {'scope' : ['email']}), function(req, res){});
 
 app.get('/getFiles', function(req, res) {
     res.send(JSON.stringify(utility.getFolderContents));
@@ -183,7 +192,7 @@ app.get('/oauthCallBack', function(req, res) {
     res.end(JSON.stringify(req));
 });
 
-app.get('/fboauthCallBack', passport.authenticate('facebook', {
+app.get('/fboauthCallBack', passport.authorize('facebook', {
             successRedirect : '/login',
             failureRedirect : '/'
         }));
